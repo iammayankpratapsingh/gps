@@ -1,0 +1,54 @@
+{
+  "unknown": {
+    "-O_0E9HNGAh8jEW8FSvB": {
+      "device_id": "99094186",
+      "location": {
+        "_": "&id=99094186&lat=28.4839701&lon=77.5224891&timestamp=2025-09-13T04:00:53.672Z&",
+        "activity": {
+          "type": "still"
+        },
+        "battery": {
+          "is_charging": true,
+          "level": 0.41
+        },
+        "coords": {
+          "accuracy": 19.83,
+          "altitude": 160.6,
+          "heading": 227.3,
+          "latitude": 28.4839701,
+          "longitude": 77.5224891,
+          "speed": 0.24
+        },
+        "is_moving": true,
+        "manual": true,
+        "odometer": 0,
+        "timestamp": "2025-09-13T04:00:53.672Z"
+      }
+    },
+    "-O_0Fv6jIu3pPSde-myB": {
+      "device_id": "99094186",
+      "location": {
+        "_": "&id=99094186&lat=28.4839597&lon=77.5224722&timestamp=2025-09-13T04:09:39.349Z&",
+        "activity": {
+          "type": "still"
+        },
+        "battery": {
+          "is_charging": true,
+          "level": 0.41
+        },
+        "coords": {
+          "accuracy": 17.37,
+          "altitude": 160.9,
+          "heading": -1,
+          "latitude": 28.4839597,
+          "longitude": 77.5224722,
+          "speed": -1
+        },
+        "event": "motionchange",
+        "is_moving": false,
+        "odometer": 0,
+        "timestamp": "2025-09-13T04:09:39.349Z"
+      }
+    }
+  }
+}
