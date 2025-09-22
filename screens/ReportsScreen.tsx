@@ -1,17 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 import DeviceAnalyticsScreen from './DeviceAnalyticsScreen';
 import LocationReportsScreen from './LocationReportsScreen';
 import BatteryReportsScreen from './BatteryReportsScreen';
 import PerformanceMetricsScreen from './PerformanceMetricsScreen';
+import ExitConfirmationPopup from '../components/ExitConfirmationPopup';
 
 export default function ReportsScreen() {
+  const { t } = useTranslation('common');
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
+  const [showExitPopup, setShowExitPopup] = useState(false);
   
   // Professional status bar that matches header color
   useStatusBar({ colors, animated: true });
@@ -23,12 +27,40 @@ export default function ReportsScreen() {
     return unsubscribe;
   }, []);
 
+  // Back handler for exit confirmation
+  useEffect(() => {
+    const backAction = () => {
+      // If user is on a deep screen (not main reports screen), handle normal back navigation
+      if (selectedReport) {
+        setSelectedReport(null);
+        return true; // Prevent default back behavior
+      }
+      
+      // If user is on main reports screen, show exit confirmation
+      setShowExitPopup(true);
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, [selectedReport]);
+
   const handleReportPress = (reportType: string) => {
     setSelectedReport(reportType);
   };
 
   const handleBack = () => {
     setSelectedReport(null);
+  };
+
+  const handleExitConfirm = () => {
+    setShowExitPopup(false);
+    BackHandler.exitApp(); // Close the app
+  };
+
+  const handleExitCancel = () => {
+    setShowExitPopup(false);
   };
 
   // Render individual report screens
@@ -52,7 +84,7 @@ export default function ReportsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView style={[styles.content, { paddingBottom: 140 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Reports</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{t('reports')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             View detailed analytics and reports for your devices
           </Text>
@@ -183,6 +215,14 @@ export default function ReportsScreen() {
           </View>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Exit Confirmation Popup */}
+      <ExitConfirmationPopup
+        visible={showExitPopup}
+        onConfirm={handleExitConfirm}
+        onCancel={handleExitCancel}
+        colors={colors}
+      />
     </SafeAreaView>
   );
 }

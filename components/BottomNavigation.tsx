@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { ThemeColors } from '../services/themeService';
 
 interface BottomNavigationProps {
@@ -12,15 +13,15 @@ interface BottomNavigationProps {
 
 interface TabItem {
   id: string;
-  label: string;
+  labelKey: string;
   icon: string;
 }
 
 const tabs: TabItem[] = [
-  { id: 'devices', label: 'Devices', icon: 'devices' },
-  { id: 'reports', label: 'Reports', icon: 'assessment' },
-  { id: 'settings', label: 'Settings', icon: 'settings' },
-  { id: 'account', label: 'Account', icon: 'person' },
+  { id: 'devices', labelKey: 'devices', icon: 'devices' },
+  { id: 'reports', labelKey: 'reports', icon: 'assessment' },
+  { id: 'settings', labelKey: 'settings', icon: 'settings' },
+  { id: 'account', labelKey: 'account', icon: 'person' },
 ];
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
@@ -28,6 +29,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   activeTab,
   onTabPress,
 }) => {
+  const { t } = useTranslation('common');
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]} edges={['bottom']}>
       <View style={[styles.navigationBar, { backgroundColor: colors.surface, borderTopColor: colors.border }]}>
@@ -47,7 +49,7 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
                 style={styles.tabIcon} 
               />
               <Text style={[styles.tabLabel, { color: isActive ? colors.primary : colors.textSecondary }]}>
-                {tab.label}
+                {t(tab.labelKey)}
               </Text>
             </TouchableOpacity>
           );

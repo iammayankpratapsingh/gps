@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface NotificationsScreenProps {
@@ -19,6 +19,17 @@ interface Notification {
 
 export default function NotificationsScreen({ colors, onBack }: NotificationsScreenProps) {
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'unread' | 'read'>('all');
+
+  // Back handler for hamburger menu item screen
+  useEffect(() => {
+    const backAction = () => {
+      onBack(); // Navigate back to hamburger menu
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [onBack]);
 
   // Mock data - in real app, this would come from your database
   const notifications: Notification[] = [

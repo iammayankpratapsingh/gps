@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 interface EmptyDeviceStateProps {
   colors: {
@@ -15,6 +16,8 @@ interface EmptyDeviceStateProps {
 }
 
 export const EmptyDeviceState: React.FC<EmptyDeviceStateProps> = ({ colors, onAddDevice }) => {
+  const { t } = useTranslation('devices');
+  
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -22,9 +25,9 @@ export const EmptyDeviceState: React.FC<EmptyDeviceStateProps> = ({ colors, onAd
           <Icon name="devices" size={40} color="#0097b2" />
         </View>
         
-        <Text style={[styles.title, { color: colors.text }]}>No Devices Added</Text>
+        <Text style={[styles.title, { color: colors.text }]}>{t('noDevices')}</Text>
         <Text style={[styles.description, { color: colors.textSecondary }]}>
-          Get started by adding your first GPS tracking device to monitor its location and status.
+          {t('noDevicesMessage')}
         </Text>
         
         <TouchableOpacity 
@@ -32,7 +35,7 @@ export const EmptyDeviceState: React.FC<EmptyDeviceStateProps> = ({ colors, onAd
           onPress={onAddDevice}
           activeOpacity={0.8}
         >
-          <Text style={[styles.addButtonText, { color: colors.surface }]}>Add Your First Device</Text>
+          <Text style={[styles.addButtonText, { color: colors.surface }]}>{t('addFirstDevice')}</Text>
         </TouchableOpacity>
         
         <View style={styles.featuresContainer}>

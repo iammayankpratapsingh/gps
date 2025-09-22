@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { styles } from '../styles/headerStyles';
 
 interface AppHeaderProps {
@@ -19,6 +20,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onFilterPress,
   onSearchPress,
 }) => {
+  const { t } = useTranslation('common');
   return (
     <SafeAreaView
       edges={['top']}
@@ -50,7 +52,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             onPress={onSearchPress}
           >
             <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>
-              Search Devices
+              {t('search')} {t('devices')}
             </Text>
             
             <TouchableOpacity 
