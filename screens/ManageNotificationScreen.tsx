@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Switch } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Switch, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ManageNotificationScreenProps {
@@ -18,6 +18,17 @@ export default function ManageNotificationScreen({ colors, onBack }: ManageNotif
     marketingEmails: false,
     weeklyReports: true,
   });
+
+  // Back handler for hamburger menu item screen
+  useEffect(() => {
+    const backAction = () => {
+      onBack(); // Navigate back to hamburger menu
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [onBack]);
 
   const handleToggle = (key: string) => {
     setNotifications(prev => ({

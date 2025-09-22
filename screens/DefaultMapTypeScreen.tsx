@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface DefaultMapTypeScreenProps {
@@ -16,6 +16,17 @@ export default function DefaultMapTypeScreen({ colors, onBack }: DefaultMapTypeS
     { id: 'hybrid', name: 'Hybrid', description: 'Satellite view with road labels' },
     { id: 'terrain', name: 'Terrain', description: 'Topographic view with elevation' },
   ];
+
+  // Back handler for hamburger menu item screen
+  useEffect(() => {
+    const backAction = () => {
+      onBack(); // Navigate back to hamburger menu
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [onBack]);
 
   const handleMapTypeSelect = (mapType: string) => {
     setSelectedMapType(mapType);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBar, View, Platform, AppState } from 'react-native';
+import { StatusBar, View, Platform, AppState, BackHandler } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import './config/i18n'; // Initialize i18n
 import AuthScreen from './screens/AuthScreen';
 import SplashScreen from './screens/SplashScreen';
 import ProfileScreen from './screens/ProfileScreen';
@@ -35,6 +36,9 @@ import { createMenuItems } from './constants/menuItems';
 import themeService from './services/themeService';
 import { DeviceProvider } from './contexts/DeviceContext';
 import { WebSocketProvider } from './contexts/WebSocketContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import ExitConfirmationPopup from './components/ExitConfirmationPopup';
+import { AnimatedTabContainer } from './components/AnimatedTabContainer';
 
 export default function App() {
   // Custom hooks for state management
@@ -127,11 +131,17 @@ export default function App() {
   
   // Bottom Navigation State
   const [activeTab, setActiveTab] = useState('devices');
+  const [previousTab, setPreviousTab] = useState<string | null>(null);
+  const [exitingTab, setExitingTab] = useState<string | null>(null);
+  const [animationsEnabled, setAnimationsEnabled] = useState(false);
   const [addedDevices, setAddedDevices] = useState<Array<{
     traccarDeviceId: string;
     customName: string;
     deviceId: string;
   }>>([]);
+  
+  // Exit Confirmation State
+  const [showExitPopup, setShowExitPopup] = useState(false);
 
   const {
     handleProfilePhotoChange,
@@ -155,6 +165,37 @@ export default function App() {
     const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => subscription?.remove();
   }, []);
+
+  // Back handler for exit confirmation on main tab screens
+  useEffect(() => {
+    const backAction = () => {
+      // If hamburger menu is open, show exit confirmation instead of just closing
+      if (isDrawerOpen) {
+        setShowExitPopup(true);
+        return true; // Prevent default back behavior
+      }
+      
+      // Check if user is on a main tab screen (not in any modal or deep screen)
+      const isOnMainScreen = !showAddDevice && !showSearchScreen && !showProfileScreen && 
+                            !showThemeManagement && !showDefaultMapType && !showManageNotification &&
+                            !showPrivacyPolicy && !showShare && !showRateUs && !showPreviousRoutes &&
+                            !showNotifications && !showReauthPopup && !showDeleteConfirmation;
+      
+      if (isOnMainScreen) {
+        // User is on main tab screen, show exit confirmation
+        setShowExitPopup(true);
+        return true; // Prevent default back behavior
+      }
+      
+      // User is on a deep screen or modal, handle normal back navigation
+      return false; // Allow default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [isDrawerOpen, showAddDevice, showSearchScreen, showProfileScreen, showThemeManagement, 
+      showDefaultMapType, showManageNotification, showPrivacyPolicy, showShare, 
+      showRateUs, showPreviousRoutes, showNotifications, showReauthPopup, showDeleteConfirmation]);
 
   // Menu items with theme management handler
   const handleOpenThemeManagement = () => {
@@ -318,8 +359,50 @@ export default function App() {
     setShowProfileScreen(false);
   };
 
+  // Helper function to determine animation directions
+  const getAnimationDirections = (currentTab: string, previousTab: string | null) => {
+    const tabOrder = ['devices', 'reports', 'settings', 'account'];
+    const currentIndex = tabOrder.indexOf(currentTab);
+    
+    // If no previous tab (initial load), always slide from right
+    if (!previousTab) {
+      return {
+        enterDirection: 'right' as const,
+        exitDirection: 'left' as const
+      };
+    }
+    
+    const previousIndex = tabOrder.indexOf(previousTab);
+    
+    if (currentIndex > previousIndex) {
+      // Moving forward (left to right): new tab enters from right, old tab exits to left
+      return {
+        enterDirection: 'right' as const,
+        exitDirection: 'left' as const
+      };
+    } else {
+      // Moving backward (right to left): new tab enters from left, old tab exits to right
+      return {
+        enterDirection: 'left' as const,
+        exitDirection: 'right' as const
+      };
+    }
+  };
+
   const handleTabPress = (tab: string) => {
-    setActiveTab(tab);
+    if (tab !== activeTab) {
+      // Enable animations after first tab switch
+      setAnimationsEnabled(true);
+      
+      setPreviousTab(activeTab);
+      setExitingTab(activeTab);
+      setActiveTab(tab);
+      
+      // Clear exiting tab after animation completes
+      setTimeout(() => {
+        setExitingTab(null);
+      }, 300);
+    }
     // Close drawer if open when switching tabs
     if (isDrawerOpen) {
       closeDrawer();
@@ -377,6 +460,20 @@ export default function App() {
     handleProfilePhotoChange(userData, handleImageSelected, (url: string) => {
       setProfileImage(url);
     });
+  };
+
+  // Exit confirmation handlers
+  const handleExitConfirm = () => {
+    setShowExitPopup(false);
+    if (isDrawerOpen) {
+      toggleDrawer(); // Close hamburger menu if open
+    }
+    BackHandler.exitApp(); // Close the app
+  };
+
+  const handleExitCancel = () => {
+    setShowExitPopup(false);
+    // Don't close hamburger menu on cancel - let user continue using it
   };
 
   if (showSplash) {
@@ -476,53 +573,77 @@ export default function App() {
   }
 
 
-  // Render current tab content
+  // Render current tab content with dual animations
   const renderTabContent = () => {
-    switch (activeTab) {
-      case 'devices':
-        return (
-          <>
-            {/* Fixed Header with Absolute Positioning */}
-            <AppHeader
-              colors={colors}
-              onMenuPress={toggleDrawer}
-              onAddDevicePress={() => setShowAddDevice(true)}
-              onFilterPress={() => setShowSearchScreen(true)}
-              onSearchPress={() => setShowSearchScreen(true)}
-            />
+    const tabs = ['devices', 'reports', 'settings', 'account'];
+    const directions = getAnimationDirections(activeTab, previousTab);
+    
+    return (
+      <View style={{ flex: 1, position: 'relative' }}>
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab;
+          const isExiting = exitingTab === tab;
+          
+          // Only render active tab or exiting tab
+          if (!isActive && !isExiting) return null;
+          
+          return (
+            <AnimatedTabContainer
+              key={tab}
+              isActive={isActive}
+              isExiting={isExiting}
+              enterDirection={directions.enterDirection}
+              exitDirection={directions.exitDirection}
+              animationsEnabled={animationsEnabled}
+            >
+              {tab === 'devices' && (
+                <>
+                  {/* Fixed Header with Absolute Positioning */}
+                  <AppHeader
+                    colors={colors}
+                    onMenuPress={toggleDrawer}
+                    onAddDevicePress={() => setShowAddDevice(true)}
+                    onFilterPress={() => setShowSearchScreen(true)}
+                    onSearchPress={() => setShowSearchScreen(true)}
+                  />
 
-            {/* Main Dashboard */}
-            <View style={{ flex: 1, backgroundColor: colors.background, paddingBottom: 80 }}>
-              <TraccarDeviceList 
-                colors={colors} 
-                addedDevices={addedDevices} 
-                onAddDevice={() => setShowAddDevice(true)}
-              />
-            </View>
-          </>
-        );
-      case 'reports':
-        return <ReportsScreen />;
-      case 'settings':
-        return <SettingsScreen onNavigateToTheme={() => setShowThemeManagement(true)} />;
-      case 'account':
-        return (
-          <AccountScreen
-            userData={userData}
-            profileImage={profileImage}
-            onNavigateToProfile={() => setShowProfileScreen(true)}
-            onLogout={handleLogout}
-          />
-        );
-      default:
-        return null;
-    }
+                  {/* Main Dashboard */}
+                  <View style={{ flex: 1, backgroundColor: colors.background, paddingBottom: 80 }}>
+                    <TraccarDeviceList 
+                      colors={colors} 
+                      addedDevices={addedDevices} 
+                      onAddDevice={() => setShowAddDevice(true)}
+                    />
+                  </View>
+                </>
+              )}
+              
+              {tab === 'reports' && <ReportsScreen />}
+              
+              {tab === 'settings' && (
+                <SettingsScreen onNavigateToTheme={() => setShowThemeManagement(true)} />
+              )}
+              
+              {tab === 'account' && (
+                <AccountScreen
+                  userData={userData}
+                  profileImage={profileImage}
+                  onNavigateToProfile={() => setShowProfileScreen(true)}
+                  onLogout={handleLogout}
+                />
+              )}
+            </AnimatedTabContainer>
+          );
+        })}
+      </View>
+    );
   };
 
   return (
-    <WebSocketProvider>
-      <DeviceProvider>
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <LanguageProvider>
+      <WebSocketProvider>
+        <DeviceProvider>
+          <View style={{ flex: 1, backgroundColor: colors.background }}>
         {showAddDevice ? (
           <AddDeviceScreen 
             onClose={() => setShowAddDevice(false)}
@@ -588,8 +709,17 @@ export default function App() {
       )}
 
         </View>
-      </DeviceProvider>
-    </WebSocketProvider>
+
+        {/* Exit Confirmation Popup */}
+        <ExitConfirmationPopup
+          visible={showExitPopup}
+          onConfirm={handleExitConfirm}
+          onCancel={handleExitCancel}
+          colors={colors}
+        />
+        </DeviceProvider>
+      </WebSocketProvider>
+    </LanguageProvider>
   );
 }
 

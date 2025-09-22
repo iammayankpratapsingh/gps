@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
+  BackHandler,
 } from 'react-native';
 import themeService, { Theme, ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
@@ -31,6 +32,17 @@ export default function ThemeManagementScreen({ onBack, currentTheme }: ThemeMan
     });
     return unsubscribe;
   }, []);
+
+  // Back handler for hamburger menu item screen
+  useEffect(() => {
+    const backAction = () => {
+      onBack(); // Navigate back to hamburger menu
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [onBack]);
 
   const handleThemeSelect = async (theme: Theme) => {
     try {

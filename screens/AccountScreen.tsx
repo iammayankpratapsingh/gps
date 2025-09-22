@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 import { UserData } from '../services/authService';
@@ -9,6 +10,7 @@ import SubscriptionScreen from './SubscriptionScreen';
 import BillingPaymentsScreen from './BillingPaymentsScreen';
 import HelpSupportScreen from './HelpSupportScreen';
 import SendFeedbackScreen from './SendFeedbackScreen';
+import ExitConfirmationPopup from '../components/ExitConfirmationPopup';
 
 interface AccountScreenProps {
   userData: UserData | null;
@@ -23,8 +25,10 @@ export default function AccountScreen({
   onNavigateToProfile, 
   onLogout 
 }: AccountScreenProps) {
+  const { t } = useTranslation('common');
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
   const [selectedScreen, setSelectedScreen] = useState<string | null>(null);
+  const [showExitPopup, setShowExitPopup] = useState(false);
   
   // Professional status bar that matches header color
   useStatusBar({ colors, animated: true });
@@ -36,8 +40,35 @@ export default function AccountScreen({
     return unsubscribe;
   }, []);
 
+  // Back handler for exit confirmation
+  useEffect(() => {
+    const backAction = () => {
+      // If user is on a deep screen (not main account screen), handle normal back navigation
+      if (selectedScreen) {
+        setSelectedScreen(null);
+        return true; // Prevent default back behavior
+      }
+      
+      // If user is on main account screen, show exit confirmation
+      setShowExitPopup(true);
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [selectedScreen]);
+
   const handleBack = () => {
     setSelectedScreen(null);
+  };
+
+  const handleExitConfirm = () => {
+    setShowExitPopup(false);
+    BackHandler.exitApp(); // Close the app
+  };
+
+  const handleExitCancel = () => {
+    setShowExitPopup(false);
   };
 
   const accountItems = [
@@ -121,9 +152,17 @@ export default function AccountScreen({
           onPress={onLogout}
           activeOpacity={0.8}
         >
-          <Text style={styles.logoutText}>Logout</Text>
+          <Text style={styles.logoutText}>{t('logout')}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Exit Confirmation Popup */}
+      <ExitConfirmationPopup
+        visible={showExitPopup}
+        onConfirm={handleExitConfirm}
+        onCancel={handleExitCancel}
+        colors={colors}
+      />
     </SafeAreaView>
   );
 }

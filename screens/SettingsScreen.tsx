@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 import NotificationsScreen from './NotificationsScreen';
@@ -9,14 +10,18 @@ import PrivacySecurityScreen from './PrivacySecurityScreen';
 import BackupSyncScreen from './BackupSyncScreen';
 import LanguageScreen from './LanguageScreen';
 import AboutScreen from './AboutScreen';
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import ExitConfirmationPopup from '../components/ExitConfirmationPopup';
 
 interface SettingsScreenProps {
   onNavigateToTheme: () => void;
 }
 
 export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProps) {
+  const { t } = useTranslation('common');
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
   const [selectedScreen, setSelectedScreen] = useState<string | null>(null);
+  const [showExitPopup, setShowExitPopup] = useState(false);
   
   // Professional status bar that matches header color
   useStatusBar({ colors, animated: true });
@@ -28,17 +33,43 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
     return unsubscribe;
   }, []);
 
+  // Back handler for exit confirmation
+  useEffect(() => {
+    const backAction = () => {
+      // If user is on a deep screen (not main settings screen), handle normal back navigation
+      if (selectedScreen) {
+        setSelectedScreen(null);
+        return true; // Prevent default back behavior
+      }
+      
+      // If user is on main settings screen, show exit confirmation
+      setShowExitPopup(true);
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [selectedScreen]);
+
   const handleBack = () => {
     setSelectedScreen(null);
   };
 
+  const handleExitConfirm = () => {
+    setShowExitPopup(false);
+    BackHandler.exitApp(); // Close the app
+  };
+
+  const handleExitCancel = () => {
+    setShowExitPopup(false);
+  };
+
   const settingsItems = [
-    { id: 'theme', title: 'Theme Management', icon: 'palette', action: onNavigateToTheme },
-    { id: 'notifications', title: 'Notifications', icon: 'notifications', action: () => setSelectedScreen('notifications') },
-    { id: 'privacy', title: 'Privacy & Security', icon: 'security', action: () => setSelectedScreen('privacy') },
+    { id: 'theme', title: t('theme'), icon: 'palette', action: onNavigateToTheme },
+    { id: 'notifications', title: t('notifications'), icon: 'notifications', action: () => setSelectedScreen('notifications') },
+    { id: 'privacy', title: t('privacy'), icon: 'security', action: () => setSelectedScreen('privacy') },
     { id: 'backup', title: 'Backup & Sync', icon: 'cloud-upload', action: () => setSelectedScreen('backup') },
-    { id: 'language', title: 'Language', icon: 'language', action: () => setSelectedScreen('language') },
-    { id: 'about', title: 'About', icon: 'info', action: () => setSelectedScreen('about') },
+    { id: 'about', title: t('about'), icon: 'info', action: () => setSelectedScreen('about') },
   ];
 
   // Render individual settings screens
@@ -66,11 +97,14 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView style={[styles.content, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{t('settings')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Customize your app experience
           </Text>
         </View>
+
+        {/* Language Switcher */}
+        <LanguageSwitcher colors={colors} />
 
         {settingsItems.map((item) => (
           <TouchableOpacity
@@ -87,6 +121,14 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* Exit Confirmation Popup */}
+      <ExitConfirmationPopup
+        visible={showExitPopup}
+        onConfirm={handleExitConfirm}
+        onCancel={handleExitCancel}
+        colors={colors}
+      />
     </SafeAreaView>
   );
 }

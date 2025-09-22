@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface PrivacyPolicyScreenProps {
@@ -8,6 +8,17 @@ interface PrivacyPolicyScreenProps {
 }
 
 export default function PrivacyPolicyScreen({ colors, onBack }: PrivacyPolicyScreenProps) {
+  // Back handler for hamburger menu item screen
+  useEffect(() => {
+    const backAction = () => {
+      onBack(); // Navigate back to hamburger menu
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [onBack]);
+
   const policySections = [
     {
       title: 'Information We Collect',

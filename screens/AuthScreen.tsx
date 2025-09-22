@@ -13,6 +13,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 import authService, { UserData } from '../services/authService';
 import { useStatusBar } from '../hooks/useStatusBar';
 
@@ -23,6 +24,8 @@ interface AuthScreenProps {
 }
 
 export default function AuthScreen({ onLogin }: AuthScreenProps) {
+  const { t } = useTranslation('common');
+  
   // Professional status bar for auth screen
   useStatusBar({ 
     colors: { 
@@ -227,12 +230,12 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
               </View>
             </View>
             <Text style={styles.title}>
-              {isLogin ? 'Sign in to your Account' : 'Sign Up'}
+              {isLogin ? t('signInToContinue') : t('createAccount')}
             </Text>
             <Text style={styles.subtitle}>
               {isLogin 
-                ? 'Enter your email and password to log in' 
-                : 'Already have an account? Log In'
+                ? t('enterEmailPassword')
+                : t('alreadyHaveAccountLogin')
               }
             </Text>
             {!isLogin && (
@@ -276,7 +279,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
               <View style={styles.inputContainer}>
                 <TextInput
                   style={[styles.input, errors.fullName && styles.inputError]}
-                  placeholder="Full Name"
+                  placeholder={t('fullName')}
                   placeholderTextColor="#999999"
                   value={fullName}
                   onChangeText={(text) => {
@@ -294,7 +297,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
             <View style={styles.inputContainer}>
               <TextInput
                 style={[styles.input, errors.email && styles.inputError]}
-                placeholder="Email"
+                placeholder={t('email')}
                 placeholderTextColor="#999999"
                 value={email}
                 onChangeText={(text) => {
@@ -313,7 +316,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
               <View style={styles.inputContainer}>
                 <TextInput
                   style={[styles.input, errors.phoneNumber && styles.inputError]}
-                  placeholder="Phone Number"
+                  placeholder={t('phoneNumber')}
                   placeholderTextColor="#999999"
                   value={phoneNumber}
                   onChangeText={(text) => {
@@ -332,7 +335,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
               <View style={[styles.passwordContainer, errors.password && styles.passwordContainerError]}>
                 <TextInput
                   style={styles.passwordInput}
-                  placeholder="Password"
+                  placeholder={t('password')}
                   placeholderTextColor="#999999"
                   value={password}
                   onChangeText={(text) => {
@@ -362,7 +365,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
                 <View style={[styles.passwordContainer, errors.confirmPassword && styles.passwordContainerError]}>
                   <TextInput
                     style={styles.passwordInput}
-                    placeholder="Confirm Password"
+                    placeholder={t('confirmPassword')}
                     placeholderTextColor="#999999"
                     value={confirmPassword}
                     onChangeText={(text) => {
@@ -397,10 +400,10 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
                   <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
                     {rememberMe && <Icon name="check" size={12} color="#ffffff" />}
                   </View>
-                  <Text style={styles.rememberMeText}>Remember me</Text>
+                  <Text style={styles.rememberMeText}>{t('rememberMe')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.forgotPassword}>
-                  <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                  <Text style={styles.forgotPasswordText}>{t('forgotPassword')}</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -422,7 +425,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
                 <ActivityIndicator color="#ffffff" />
               ) : (
                 <Text style={styles.submitButtonText}>
-                  {isLogin ? 'Log In' : 'Create Account'}
+                  {isLogin ? t('signIn') : t('createAccount')}
                 </Text>
               )}
             </TouchableOpacity>
@@ -430,9 +433,9 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
             {/* Sign Up Link (Login only) */}
             {isLogin && (
               <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>Don't have an account? </Text>
+                <Text style={styles.signupText}>{t('dontHaveAccountSignUp')} </Text>
                 <TouchableOpacity onPress={toggleMode}>
-                  <Text style={styles.signupLink}>Sign Up</Text>
+                  <Text style={styles.signupLink}>{t('signUp')}</Text>
                 </TouchableOpacity>
               </View>
             )}

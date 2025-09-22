@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { MenuItem } from '../constants/menuItems';
 import { styles } from '../styles/drawerStyles';
 
@@ -26,6 +27,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
   onProfilePress,
   onLogout,
 }) => {
+  const { t } = useTranslation('common');
   return (
     <>
       <Animated.View style={[styles.drawer, { 
@@ -65,7 +67,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
               onPress={item.action || (() => {})}
             >
               <Icon name={item.icon} size={20} color={item.color} style={styles.menuIcon} />
-              <Text style={[styles.menuText, { color: colors.text }, item.id === 9 && styles.deleteText]}>{item.title}</Text>
+              <Text style={[styles.menuText, { color: colors.text }, item.id === 9 && styles.deleteText]}>{t(item.titleKey)}</Text>
               <Text style={[styles.menuArrow, { color: colors.text }]}>›</Text>
             </TouchableOpacity>
           ))}
@@ -80,12 +82,12 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
             backgroundColor: colors.error,
             shadowColor: colors.error
           }]} onPress={onLogout}>
-            <Text style={styles.logoutButtonText}>Logout</Text>
+            <Text style={styles.logoutButtonText}>{t('logout')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={[styles.drawerFooter, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.versionText, { color: colors.textSecondary }]}>Version 1.0.0</Text>
+          <Text style={[styles.versionText, { color: colors.textSecondary }]}>{t('version')} 1.0.0</Text>
         </View>
         </SafeAreaView>
       </Animated.View>
