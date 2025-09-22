@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 import { UserData } from '../services/authService';
@@ -40,11 +41,11 @@ export default function AccountScreen({
   };
 
   const accountItems = [
-    { id: 'profile', title: 'Edit Profile', icon: '👤', action: onNavigateToProfile },
-    { id: 'subscription', title: 'Subscription', icon: '💎', action: () => setSelectedScreen('subscription') },
-    { id: 'billing', title: 'Billing & Payments', icon: '💳', action: () => setSelectedScreen('billing') },
-    { id: 'support', title: 'Help & Support', icon: '🆘', action: () => setSelectedScreen('support') },
-    { id: 'feedback', title: 'Send Feedback', icon: '💬', action: () => setSelectedScreen('feedback') },
+    { id: 'profile', title: 'Edit Profile', icon: 'person', action: onNavigateToProfile },
+    { id: 'subscription', title: 'Subscription', icon: 'diamond', action: () => setSelectedScreen('subscription') },
+    { id: 'billing', title: 'Billing & Payments', icon: 'payment', action: () => setSelectedScreen('billing') },
+    { id: 'support', title: 'Help & Support', icon: 'help', action: () => setSelectedScreen('support') },
+    { id: 'feedback', title: 'Send Feedback', icon: 'feedback', action: () => setSelectedScreen('feedback') },
   ];
 
   // Render individual account screens
@@ -66,7 +67,7 @@ export default function AccountScreen({
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Account</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -82,7 +83,7 @@ export default function AccountScreen({
                 <Image source={{ uri: profileImage }} style={styles.profileImage} />
               ) : (
                 <View style={[styles.profilePlaceholder, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.profileEmoji}>👤</Text>
+                  <Icon name="person" size={30} color="#ffffff" />
                 </View>
               )}
             </View>
@@ -94,7 +95,7 @@ export default function AccountScreen({
                 {userData?.email || 'user@example.com'}
               </Text>
             </View>
-            <Text style={[styles.editIcon, { color: colors.textSecondary }]}>✏️</Text>
+            <Icon name="edit" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -107,10 +108,10 @@ export default function AccountScreen({
             activeOpacity={0.7}
           >
             <View style={styles.accountContent}>
-              <Text style={styles.accountIcon}>{item.icon}</Text>
+              <Icon name={item.icon} size={24} color={colors.primary} style={styles.accountIcon} />
               <Text style={[styles.accountTitle, { color: colors.text }]}>{item.title}</Text>
             </View>
-            <Text style={[styles.accountArrow, { color: colors.textSecondary }]}>›</Text>
+            <Icon name="chevron-right" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         ))}
 
@@ -177,10 +178,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  profileEmoji: {
-    fontSize: 30,
-    color: '#fff',
-  },
   profileInfo: {
     flex: 1,
   },
@@ -191,9 +188,6 @@ const styles = StyleSheet.create({
   },
   profileEmail: {
     fontSize: 14,
-  },
-  editIcon: {
-    fontSize: 20,
   },
   accountItem: {
     flexDirection: 'row',
@@ -214,16 +208,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   accountIcon: {
-    fontSize: 24,
     marginRight: 16,
   },
   accountTitle: {
     fontSize: 16,
     fontWeight: '500',
-  },
-  accountArrow: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   logoutButton: {
     padding: 18,

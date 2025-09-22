@@ -9,6 +9,7 @@ import {
   StatusBar,
   Keyboard,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TraccarDevice } from '../services/traccarServiceSimple';
 import { useDevices, DeviceFilter } from '../contexts/DeviceContext';
@@ -38,7 +39,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
               Search functionality is not available. Please try again.
             </Text>
             <TouchableOpacity
-              style={[styles.backButton, { backgroundColor: colors.primary }]}
+              style={[styles.errorBackButton, { backgroundColor: colors.primary }]}
               onPress={onBack}
             >
               <Text style={[styles.backButtonText, { color: '#ffffff' }]}>Go Back</Text>
@@ -248,7 +249,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                       Category: {device.category || 'Default'}
                     </Text>
                     <Text style={[styles.recentTimeText, { color: colors.primary }]}>
-                      📍 Last Update: {new Date(device.lastUpdate).toLocaleString()}
+                      <Icon name="schedule" size={14} color={colors.textSecondary} style={{ marginRight: 4 }} />
+                      Last Update: {new Date(device.lastUpdate).toLocaleString()}
                     </Text>
                   </View>
                   <View style={[
@@ -490,7 +492,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  backButton: {
+  errorBackButton: {
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,

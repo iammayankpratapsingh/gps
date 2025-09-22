@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface EmptyDeviceStateProps {
   colors: {
@@ -18,7 +19,7 @@ export const EmptyDeviceState: React.FC<EmptyDeviceStateProps> = ({ colors, onAd
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.emptyCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
         <View style={styles.iconContainer}>
-          <Text style={styles.icon}>📱</Text>
+          <Icon name="devices" size={40} color="#0097b2" />
         </View>
         
         <Text style={[styles.title, { color: colors.text }]}>No Devices Added</Text>
@@ -38,19 +39,19 @@ export const EmptyDeviceState: React.FC<EmptyDeviceStateProps> = ({ colors, onAd
           <Text style={[styles.featuresTitle, { color: colors.text }]}>What you can do:</Text>
           <View style={styles.featureList}>
             <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>📍</Text>
+              <Icon name="location-on" size={20} color="#0097b2" style={styles.featureIcon} />
               <Text style={[styles.featureText, { color: colors.textSecondary }]}>Track real-time location</Text>
             </View>
             <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>📊</Text>
+              <Icon name="assessment" size={20} color="#0097b2" style={styles.featureIcon} />
               <Text style={[styles.featureText, { color: colors.textSecondary }]}>View detailed reports</Text>
             </View>
             <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>🔔</Text>
+              <Icon name="notifications" size={20} color="#0097b2" style={styles.featureIcon} />
               <Text style={[styles.featureText, { color: colors.textSecondary }]}>Get notifications</Text>
             </View>
             <View style={styles.featureItem}>
-              <Text style={styles.featureIcon}>🛣️</Text>
+              <Icon name="route" size={20} color="#0097b2" style={styles.featureIcon} />
               <Text style={[styles.featureText, { color: colors.textSecondary }]}>View route history</Text>
             </View>
           </View>
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   icon: {
-    fontSize: 40,
+    // Removed fontSize as it's not needed for vector icons
   },
   title: {
     fontSize: 24,
@@ -134,7 +135,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   featureIcon: {
-    fontSize: 20,
     marginRight: 12,
     width: 24,
   },

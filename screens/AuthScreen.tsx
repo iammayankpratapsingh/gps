@@ -12,6 +12,7 @@ import {
   StatusBar,
   ActivityIndicator
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import authService, { UserData } from '../services/authService';
 import { useStatusBar } from '../hooks/useStatusBar';
 
@@ -222,7 +223,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <View style={styles.logo}>
-                <Text style={styles.logoText}>📍</Text>
+                <Icon name="location-on" size={30} color="#ffffff" />
               </View>
             </View>
             <Text style={styles.title}>
@@ -254,7 +255,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
               ) : (
                 <>
                   <View style={styles.googleIconContainer}>
-                    <Text style={styles.googleIcon}>G</Text>
+                    <Text style={styles.googleIconText}>G</Text>
                   </View>
                   <Text style={styles.googleButtonText}>
                     {isLogin ? 'Continue with Google' : 'Sign up with Google'}
@@ -345,10 +346,11 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
                   style={styles.eyeIcon}
                   onPress={() => setShowPassword(!showPassword)}
                 >
-                  <View style={styles.eyeIconContainer}>
-                    <Text style={styles.eyeIconText}>👁</Text>
-                    {!showPassword && <Text style={styles.slashText}>⚊</Text>}
-                  </View>
+                  <Icon 
+                    name={showPassword ? "visibility" : "visibility-off"} 
+                    size={20} 
+                    color="#666666" 
+                  />
                 </TouchableOpacity>
               </View>
               {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
@@ -374,10 +376,11 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
                     style={styles.eyeIcon}
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
-                  <View style={styles.eyeIconContainer}>
-                    <Text style={styles.eyeIconText}>👁</Text>
-                    {!showConfirmPassword && <Text style={styles.slashText}>⚊</Text>}
-                  </View>
+                    <Icon 
+                      name={showConfirmPassword ? "visibility" : "visibility-off"} 
+                      size={20} 
+                      color="#666666" 
+                    />
                   </TouchableOpacity>
                 </View>
                 {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
@@ -392,7 +395,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
                   onPress={() => setRememberMe(!rememberMe)}
                 >
                   <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                    {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                    {rememberMe && <Icon name="check" size={12} color="#ffffff" />}
                   </View>
                   <Text style={styles.rememberMeText}>Remember me</Text>
                 </TouchableOpacity>
@@ -674,9 +677,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
   },
-  logoText: {
-    fontSize: 30,
-  },
   title: {
     fontSize: 28,
     fontWeight: '700',
@@ -736,7 +736,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
-  googleIcon: {
+  googleIconText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#ffffff',
@@ -797,20 +797,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  eyeIconText: {
-    fontSize: 18,
-  },
-  eyeIconContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  slashText: {
-    position: 'absolute',
-    fontSize: 20,
-    color: '#666666',
-    transform: [{ rotate: '45deg' }],
-  },
   inputError: {
     borderColor: '#dc3545',
   },
@@ -845,11 +831,6 @@ const styles = StyleSheet.create({
   checkboxChecked: {
     backgroundColor: '#0097b2',
     borderColor: '#0097b2',
-  },
-  checkmark: {
-    color: '#ffffff',
-    fontSize: 12,
-    fontWeight: 'bold',
   },
   rememberMeText: {
     fontSize: 14,

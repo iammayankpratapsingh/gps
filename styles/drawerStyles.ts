@@ -25,7 +25,7 @@ export const styles = StyleSheet.create({
     flex: 1,
   },
   drawerHeader: {
-    paddingTop: 4, // Further reduced to move profile closer to status bar
+    paddingTop: 0, // Reduced to move profile closer to status bar
     paddingHorizontal: 20,
     paddingBottom: 8,
   },
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    marginBottom: 12, // Increased to provide better spacing between back button and profile
+    marginBottom: 8, // Reduced to move profile image higher
   },
   placeholder: {
     width: 40, // Same width as back button to center the title
@@ -53,7 +53,8 @@ export const styles = StyleSheet.create({
   },
   profileSection: {
     alignItems: 'center',
-    marginTop: -4, // Move profile section up slightly
+    marginTop: -12, // Move profile section up even more
+    marginBottom: 16, // Add space between profile image and menu items
   },
   profileImageContainer: {
     position: 'relative',
@@ -92,12 +93,9 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#0097b2',
   },
-  editIconText: {
-    fontSize: 14,
-  },
   menuContainer: {
     flex: 1,
-    paddingTop: 24, // Increased from 16 to create more gap
+    paddingTop: 8, // Reduced since we added marginBottom to profileSection
   },
   menuItem: {
     flexDirection: 'row',
@@ -110,7 +108,6 @@ export const styles = StyleSheet.create({
     marginVertical: 3, // Increased from 1 for more spacing between items
   },
   menuIcon: {
-    fontSize: 20,
     marginRight: 15,
     width: 25,
     textAlign: 'center',

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, RefreshControl, Alert, AppState } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ThemeColors } from '../services/themeService';
 import { EmptyDeviceState } from './EmptyDeviceState';
 import { useDevices } from '../contexts/DeviceContext';
@@ -173,9 +174,12 @@ export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, ad
       >
         {filteredDevices.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={[styles.emptyStateText, { color: colors.text }]}>
-              📱 No devices added yet
-            </Text>
+            <View style={styles.emptyStateContent}>
+              <Icon name="devices" size={32} color={colors.textSecondary} style={styles.emptyStateIcon} />
+              <Text style={[styles.emptyStateText, { color: colors.text }]}>
+                No devices added yet
+              </Text>
+            </View>
             <Text style={[styles.emptyStateSubtext, { color: colors.textSecondary }]}>
               Tap the + button to add your first device from Traccar
             </Text>
@@ -207,7 +211,7 @@ export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, ad
                 >
                   <View style={styles.deviceHeader}>
                     <View style={styles.deviceNameContainer}>
-                      <View style={styles.nameRow}>
+                      <View>
                         <Text style={[styles.deviceName, { color: colors.text }]}>{displayName}</Text>
                       </View>
                       {addedDevice && (
@@ -227,15 +231,24 @@ export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, ad
                   </View>
                   
                   <View style={styles.deviceInfo}>
-                    <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
-                      📱 Device ID: {device.uniqueId}
-                    </Text>
-                    <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
-                      📍 Location: {latitude}, {longitude}
-                    </Text>
-                    <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
-                      🔋 Battery: {batteryLevel}%
-                    </Text>
+                    <View style={styles.deviceDetailRow}>
+                      <Icon name="devices" size={16} color={colors.textSecondary} style={styles.detailIcon} />
+                      <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
+                        Device ID: {device.uniqueId}
+                      </Text>
+                    </View>
+                    <View style={styles.deviceDetailRow}>
+                      <Icon name="location-on" size={16} color={colors.textSecondary} style={styles.detailIcon} />
+                      <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
+                        Location: {latitude}, {longitude}
+                      </Text>
+                    </View>
+                    <View style={styles.deviceDetailRow}>
+                      <Icon name="battery-std" size={16} color={colors.textSecondary} style={styles.detailIcon} />
+                      <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
+                        Battery: {batteryLevel}%
+                      </Text>
+                    </View>
                   </View>
                 </View>
               );
@@ -370,6 +383,13 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     paddingHorizontal: 20,
   },
+  emptyStateContent: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  emptyStateIcon: {
+    marginBottom: 12,
+  },
   emptyStateText: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -380,5 +400,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  deviceDetailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  detailIcon: {
+    marginRight: 8,
+    width: 16,
   },
 });

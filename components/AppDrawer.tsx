@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Animated, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MenuItem } from '../constants/menuItems';
 import { styles } from '../styles/drawerStyles';
@@ -49,7 +50,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
                   )}
                 </View>
                 <View style={styles.editIcon}>
-                  <Text style={styles.editIconText}>✏️</Text>
+                  <Icon name="edit" size={16} color="#0097b2" />
                 </View>
               </TouchableOpacity>
             </View>
@@ -63,7 +64,7 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
               activeOpacity={0.7}
               onPress={item.action || (() => {})}
             >
-              <Text style={[styles.menuIcon, { color: item.color }]}>{item.icon}</Text>
+              <Icon name={item.icon} size={20} color={item.color} style={styles.menuIcon} />
               <Text style={[styles.menuText, { color: colors.text }, item.id === 9 && styles.deleteText]}>{item.title}</Text>
               <Text style={[styles.menuArrow, { color: colors.text }]}>›</Text>
             </TouchableOpacity>

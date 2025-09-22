@@ -492,7 +492,7 @@ export default function App() {
             />
 
             {/* Main Dashboard */}
-            <View style={{ flex: 1, backgroundColor: colors.background }}>
+            <View style={{ flex: 1, backgroundColor: colors.background, paddingBottom: 80 }}>
               <TraccarDeviceList 
                 colors={colors} 
                 addedDevices={addedDevices} 

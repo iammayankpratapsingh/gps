@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 
@@ -24,7 +25,7 @@ export default function DeviceAnalyticsScreen({ onBack }: DeviceAnalyticsScreenP
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <View style={[styles.header, { backgroundColor: colors.header, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={onBack} style={styles.backButton}>
-          <Text style={[styles.backButtonText, { color: colors.primary }]}>← Back</Text>
+          <Icon name="arrow-back" size={24} color={colors.primary} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Device Analytics</Text>
         <View style={styles.placeholder} />
@@ -32,7 +33,10 @@ export default function DeviceAnalyticsScreen({ onBack }: DeviceAnalyticsScreenP
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>📊 Usage Statistics</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Icon name="analytics" size={20} color={colors.primary} style={styles.sectionIcon} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Usage Statistics</Text>
+          </View>
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>Device Usage Overview</Text>
             <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
@@ -47,7 +51,10 @@ export default function DeviceAnalyticsScreen({ onBack }: DeviceAnalyticsScreenP
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>🔄 Online/Offline Patterns</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Icon name="sync" size={20} color={colors.primary} style={styles.sectionIcon} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Online/Offline Patterns</Text>
+          </View>
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>Connection Patterns</Text>
             <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
@@ -62,7 +69,10 @@ export default function DeviceAnalyticsScreen({ onBack }: DeviceAnalyticsScreenP
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>🚶 Movement Analysis</Text>
+          <View style={styles.sectionTitleContainer}>
+            <Icon name="directions" size={20} color={colors.primary} style={styles.sectionIcon} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Movement Analysis</Text>
+          </View>
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>Activity Patterns</Text>
             <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
@@ -76,8 +86,11 @@ export default function DeviceAnalyticsScreen({ onBack }: DeviceAnalyticsScreenP
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>📈 Performance Trends</Text>
+        <View style={[styles.section, styles.lastSection]}>
+          <View style={styles.sectionTitleContainer}>
+            <Icon name="trending-up" size={20} color={colors.primary} style={styles.sectionIcon} />
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Performance Trends</Text>
+          </View>
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={[styles.cardTitle, { color: colors.text }]}>Performance Metrics</Text>
             <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
@@ -110,10 +123,6 @@ const styles = StyleSheet.create({
   backButton: {
     padding: 8,
   },
-  backButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
@@ -130,10 +139,20 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
   },
+  lastSection: {
+    marginBottom: 100,
+  },
+  sectionTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionIcon: {
+    marginRight: 8,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 12,
   },
   card: {
     padding: 20,

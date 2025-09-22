@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ThemeColors } from '../services/themeService';
 
@@ -16,10 +17,10 @@ interface TabItem {
 }
 
 const tabs: TabItem[] = [
-  { id: 'devices', label: 'Devices', icon: '📱' },
-  { id: 'reports', label: 'Reports', icon: '📊' },
-  { id: 'settings', label: 'Settings', icon: '⚙️' },
-  { id: 'account', label: 'Account', icon: '👤' },
+  { id: 'devices', label: 'Devices', icon: 'devices' },
+  { id: 'reports', label: 'Reports', icon: 'assessment' },
+  { id: 'settings', label: 'Settings', icon: 'settings' },
+  { id: 'account', label: 'Account', icon: 'person' },
 ];
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
@@ -39,9 +40,12 @@ export const BottomNavigation: React.FC<BottomNavigationProps> = ({
               onPress={() => onTabPress(tab.id)}
               activeOpacity={0.7}
             >
-              <Text style={[styles.tabIcon, { color: isActive ? colors.primary : colors.textSecondary }]}>
-                {tab.icon}
-              </Text>
+              <Icon 
+                name={tab.icon} 
+                size={24} 
+                color={isActive ? colors.primary : colors.textSecondary} 
+                style={styles.tabIcon} 
+              />
               <Text style={[styles.tabLabel, { color: isActive ? colors.primary : colors.textSecondary }]}>
                 {tab.label}
               </Text>
@@ -64,8 +68,8 @@ const styles = StyleSheet.create({
   navigationBar: {
     flexDirection: 'row',
     borderTopWidth: 0.5,
-    paddingTop: 4,
-    paddingBottom: 2,
+    paddingTop: 8,
+    paddingBottom: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -1 },
     shadowOpacity: 0.08,
@@ -76,14 +80,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 4,
+    paddingVertical: 8,
   },
   tabIcon: {
-    fontSize: 18,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   tabLabel: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '500',
   },
 });

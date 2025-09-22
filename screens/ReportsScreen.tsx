@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 import DeviceAnalyticsScreen from './DeviceAnalyticsScreen';
@@ -49,7 +50,7 @@ export default function ReportsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { paddingBottom: 140 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Reports</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -71,8 +72,11 @@ export default function ReportsScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>📊 Device Analytics</Text>
-            <Text style={[styles.cardArrow, { color: colors.primary }]}>→</Text>
+            <View style={styles.cardTitleContainer}>
+              <Icon name="analytics" size={20} color={colors.primary} style={styles.cardIcon} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Device Analytics</Text>
+            </View>
+            <Icon name="chevron-right" size={24} color={colors.primary} />
           </View>
           <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
             Track device performance, usage patterns, and location history
@@ -99,8 +103,11 @@ export default function ReportsScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>📍 Location Reports</Text>
-            <Text style={[styles.cardArrow, { color: colors.primary }]}>→</Text>
+            <View style={styles.cardTitleContainer}>
+              <Icon name="location-on" size={20} color={colors.primary} style={styles.cardIcon} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Location Reports</Text>
+            </View>
+            <Icon name="chevron-right" size={24} color={colors.primary} />
           </View>
           <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
             View detailed location tracking reports and route analysis
@@ -127,8 +134,11 @@ export default function ReportsScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>🔋 Battery Reports</Text>
-            <Text style={[styles.cardArrow, { color: colors.primary }]}>→</Text>
+            <View style={styles.cardTitleContainer}>
+              <Icon name="battery-std" size={20} color={colors.primary} style={styles.cardIcon} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Battery Reports</Text>
+            </View>
+            <Icon name="chevron-right" size={24} color={colors.primary} />
           </View>
           <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
             Monitor battery usage and performance across all devices
@@ -145,6 +155,7 @@ export default function ReportsScreen() {
         <TouchableOpacity 
           style={[
             styles.card, 
+            styles.lastCard,
             { 
               backgroundColor: colors.surface, 
               borderColor: selectedReport === 'Performance Metrics' ? colors.primary : colors.border,
@@ -155,8 +166,11 @@ export default function ReportsScreen() {
           activeOpacity={0.7}
         >
           <View style={styles.cardHeader}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>📈 Performance Metrics</Text>
-            <Text style={[styles.cardArrow, { color: colors.primary }]}>→</Text>
+            <View style={styles.cardTitleContainer}>
+              <Icon name="trending-up" size={20} color={colors.primary} style={styles.cardIcon} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>Performance Metrics</Text>
+            </View>
+            <Icon name="chevron-right" size={24} color={colors.primary} />
           </View>
           <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
             Analyze device performance and identify optimization opportunities
@@ -204,20 +218,27 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  lastCard: {
+    marginBottom: 60,
+  },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
   },
+  cardTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  cardIcon: {
+    marginRight: 8,
+  },
   cardTitle: {
     fontSize: 18,
     fontWeight: '600',
     flex: 1,
-  },
-  cardArrow: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   cardDescription: {
     fontSize: 14,

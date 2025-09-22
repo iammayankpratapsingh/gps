@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 import NotificationsScreen from './NotificationsScreen';
@@ -32,12 +33,12 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
   };
 
   const settingsItems = [
-    { id: 'theme', title: 'Theme Management', icon: '🎨', action: onNavigateToTheme },
-    { id: 'notifications', title: 'Notifications', icon: '🔔', action: () => setSelectedScreen('notifications') },
-    { id: 'privacy', title: 'Privacy & Security', icon: '🔒', action: () => setSelectedScreen('privacy') },
-    { id: 'backup', title: 'Backup & Sync', icon: '☁️', action: () => setSelectedScreen('backup') },
-    { id: 'language', title: 'Language', icon: '🌐', action: () => setSelectedScreen('language') },
-    { id: 'about', title: 'About', icon: 'ℹ️', action: () => setSelectedScreen('about') },
+    { id: 'theme', title: 'Theme Management', icon: 'palette', action: onNavigateToTheme },
+    { id: 'notifications', title: 'Notifications', icon: 'notifications', action: () => setSelectedScreen('notifications') },
+    { id: 'privacy', title: 'Privacy & Security', icon: 'security', action: () => setSelectedScreen('privacy') },
+    { id: 'backup', title: 'Backup & Sync', icon: 'cloud-upload', action: () => setSelectedScreen('backup') },
+    { id: 'language', title: 'Language', icon: 'language', action: () => setSelectedScreen('language') },
+    { id: 'about', title: 'About', icon: 'info', action: () => setSelectedScreen('about') },
   ];
 
   // Render individual settings screens
@@ -63,7 +64,7 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -79,10 +80,10 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
             activeOpacity={0.7}
           >
             <View style={styles.settingContent}>
-              <Text style={styles.settingIcon}>{item.icon}</Text>
+              <Icon name={item.icon} size={24} color={colors.primary} style={styles.settingIcon} />
               <Text style={[styles.settingTitle, { color: colors.text }]}>{item.title}</Text>
             </View>
-            <Text style={[styles.settingArrow, { color: colors.textSecondary }]}>›</Text>
+            <Icon name="chevron-right" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -129,15 +130,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingIcon: {
-    fontSize: 24,
     marginRight: 16,
   },
   settingTitle: {
     fontSize: 16,
     fontWeight: '500',
-  },
-  settingArrow: {
-    fontSize: 20,
-    fontWeight: 'bold',
   },
 });

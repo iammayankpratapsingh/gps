@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { styles } from '../styles/headerStyles';
 
@@ -33,7 +34,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             style={[styles.listGridButton, { backgroundColor: colors.input }]}
             onPress={onMenuPress}
           >
-            <Text style={[styles.listGridIcon, { color: colors.text }]}>☰</Text>
+            <Icon name="menu" size={24} color={colors.text} />
           </TouchableOpacity>
           
           {/* Search bar - opens full screen search */}
@@ -56,11 +57,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               style={styles.filterButton}
               onPress={onFilterPress}
             >
-              <View style={styles.threeDotsContainer}>
-                <View style={[styles.dot, { backgroundColor: colors.text }]} />
-                <View style={[styles.dot, { backgroundColor: colors.text }]} />
-                <View style={[styles.dot, { backgroundColor: colors.text }]} />
-              </View>
+              <Icon name="tune" size={20} color={colors.text} />
             </TouchableOpacity>
           </TouchableOpacity>
           
@@ -69,7 +66,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             style={[styles.addButton, { backgroundColor: colors.primary }]}
             onPress={onAddDevicePress}
           >
-            <Text style={styles.addIcon}>+</Text>
+            <Icon name="add" size={24} color="#ffffff" />
           </TouchableOpacity>
         </View>
       </View>
