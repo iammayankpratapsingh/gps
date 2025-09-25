@@ -143,7 +143,6 @@ export default function App() {
   
   // Exit Confirmation State
   const [showExitPopup, setShowExitPopup] = useState(false);
-  
 
   const {
     handleProfilePhotoChange,
@@ -572,9 +571,6 @@ export default function App() {
     );
   }
 
-
-
-
   // Render current tab content with dual animations
   const renderTabContent = () => {
     const tabs = ['devices', 'reports', 'settings', 'account'];
@@ -609,6 +605,42 @@ export default function App() {
                     notificationCount={3} // TODO: Replace with actual notification count
                   />
 
+=======
+  // Render current tab content with dual animations
+  const renderTabContent = () => {
+    const tabs = ['devices', 'reports', 'settings', 'account'];
+    const directions = getAnimationDirections(activeTab, previousTab);
+    
+    return (
+      <View style={{ flex: 1, position: 'relative' }}>
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab;
+          const isExiting = exitingTab === tab;
+          
+          // Only render active tab or exiting tab
+          if (!isActive && !isExiting) return null;
+          
+          return (
+            <AnimatedTabContainer
+              key={tab}
+              isActive={isActive}
+              isExiting={isExiting}
+              enterDirection={directions.enterDirection}
+              exitDirection={directions.exitDirection}
+              animationsEnabled={animationsEnabled}
+            >
+              {tab === 'devices' && (
+                <>
+                  {/* Fixed Header with Absolute Positioning */}
+                  <AppHeader
+                    colors={colors}
+                    onMenuPress={toggleDrawer}
+                    onAddDevicePress={() => setShowAddDevice(true)}
+                    onFilterPress={() => setShowSearchScreen(true)}
+                    onSearchPress={() => setShowSearchScreen(true)}
+                  />
+
+>>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
                   {/* Main Dashboard */}
                   <View style={{ flex: 1, backgroundColor: colors.background, paddingBottom: 80 }}>
                     <TraccarDeviceList 

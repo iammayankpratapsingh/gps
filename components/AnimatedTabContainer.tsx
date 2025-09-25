@@ -34,14 +34,22 @@ export const AnimatedTabContainer: React.FC<AnimatedTabContainerProps> = ({
         Animated.parallel([
           Animated.timing(translateX, {
             toValue: 0,
+<<<<<<< HEAD
             duration: 200,
             easing: Easing.out(Easing.cubic),
+=======
+            duration: 300,
+>>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
             useNativeDriver: true,
           }),
           Animated.timing(opacity, {
             toValue: 1,
+<<<<<<< HEAD
             duration: 200,
             easing: Easing.out(Easing.cubic),
+=======
+            duration: 300,
+>>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
             useNativeDriver: true,
           }),
         ]).start();
@@ -57,14 +65,22 @@ export const AnimatedTabContainer: React.FC<AnimatedTabContainerProps> = ({
       Animated.parallel([
         Animated.timing(translateX, {
           toValue: endPosition,
+<<<<<<< HEAD
           duration: 150,
           easing: Easing.in(Easing.cubic),
+=======
+          duration: 300,
+>>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
           toValue: 0,
+<<<<<<< HEAD
           duration: 150,
           easing: Easing.in(Easing.cubic),
+=======
+          duration: 300,
+>>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
           useNativeDriver: true,
         }),
       ]).start();

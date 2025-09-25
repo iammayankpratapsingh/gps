@@ -99,6 +99,7 @@
   "exitApp": "Salir de la App",
   "doYouWantToExit": "¿Quieres salir?",
   "exit": "Salir",
+<<<<<<< HEAD
   "cancel": "Cancelar",
   "backupSync": "Respaldo y Sincronización",
   "live": "En Vivo",
@@ -133,4 +134,7 @@
   "nextBackup": "Próximo Respaldo",
   "backupSettings": "Configuración de Respaldo",
   "syncSettings": "Configuración de Sincronización"
+=======
+  "cancel": "Cancelar"
+>>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
 }

@@ -99,6 +99,7 @@
   "exitApp": "Quitter l'App",
   "doYouWantToExit": "Voulez-vous quitter ?",
   "exit": "Quitter",
+<<<<<<< HEAD
   "cancel": "Annuler",
   "backupSync": "Sauvegarde et Synchronisation",
   "live": "En Direct",
@@ -133,4 +134,7 @@
   "nextBackup": "Prochaine Sauvegarde",
   "backupSettings": "Paramètres de Sauvegarde",
   "syncSettings": "Paramètres de Synchronisation"
+=======
+  "cancel": "Annuler"
+>>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
 }
