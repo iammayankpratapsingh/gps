@@ -454,7 +454,7 @@ class DeviceDatabase {
       device.location = location;
       device.lastSeen = location.timestamp;
       device.isOnline = true;
-      device.battery = Math.round(location.battery.level * 100);
+      device.battery = Math.min(100, Math.max(0, Math.round(location.battery.level)));
       device.parameters = `Speed: ${location.coords.speed.toFixed(1)} km/h, Heading: ${location.coords.heading.toFixed(1)}°`;
     }
   }

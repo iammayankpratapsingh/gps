@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, RefreshControl, Alert, AppState } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 import { ThemeColors } from '../services/themeService';
 import { EmptyDeviceState } from './EmptyDeviceState';
 import { useDevices } from '../contexts/DeviceContext';
+import { formatBatteryPercentage, formatCoordinates } from '../utils/numberFormatting';
 
 interface TraccarDeviceListProps {
   colors: ThemeColors;
@@ -16,6 +18,7 @@ interface TraccarDeviceListProps {
 }
 
 export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, addedDevices = [], onAddDevice }) => {
+  const { t } = useTranslation('common');
   const { 
     devices, 
     positions, 
@@ -240,15 +243,43 @@ export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, ad
                     <View style={styles.deviceDetailRow}>
                       <Icon name="location-on" size={16} color={colors.textSecondary} style={styles.detailIcon} />
                       <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
-                        Location: {latitude}, {longitude}
+                        Location: {formatCoordinates(latitude, longitude)}
                       </Text>
                     </View>
                     <View style={styles.deviceDetailRow}>
                       <Icon name="battery-std" size={16} color={colors.textSecondary} style={styles.detailIcon} />
                       <Text style={[styles.deviceDetail, { color: colors.textSecondary }]}>
-                        Battery: {batteryLevel}%
+                        Battery: {formatBatteryPercentage(batteryLevel)}
                       </Text>
                     </View>
+                  </View>
+
+                  {/* Action Buttons Row */}
+                  <View style={styles.actionButtonsRow}>
+                    <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
+                      <Icon name="play-arrow" size={14} color="#ffffff" />
+                      <Text style={styles.actionButtonText}>{t('live')}</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
+                      <Icon name="camera-alt" size={14} color="#ffffff" />
+                      <Text style={styles.actionButtonText}>{t('camera')}</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
+                      <Icon name="info" size={14} color="#ffffff" />
+                      <Text style={styles.actionButtonText}>{t('details')}</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
+                      <Icon name="notifications" size={14} color="#ffffff" />
+                      <Text style={styles.actionButtonText}>{t('alert')}</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
+                      <Icon name="history" size={14} color="#ffffff" />
+                      <Text style={styles.actionButtonText}>{t('playback')}</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
               );
@@ -375,6 +406,33 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 12,
     fontWeight: 'bold',
+  },
+  actionButtonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 4,
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  actionButtonText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '600',
+    marginLeft: 4,
   },
   emptyState: {
     flex: 1,

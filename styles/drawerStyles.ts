@@ -145,12 +145,12 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   drawerFooter: {
-    padding: 20,
+    padding: 8, // Reduced from 20 to 8 for much smaller space
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
   },
   versionText: {
-    fontSize: 10, // Reduced from 12 to make it smaller
+    fontSize: 8, // Reduced from 10 to 8 for smaller text
     color: '#999',
     textAlign: 'center',
   },

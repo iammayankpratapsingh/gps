@@ -84,6 +84,10 @@ export const useAppState = () => {
       setIsAuthenticated(false);
     } finally {
       setIsCheckingSession(false);
+      // Keep splash screen visible for a minimum duration
+      setTimeout(() => {
+        setShowSplash(false);
+      }, 2000); // 2 seconds minimum splash duration
     }
   };
 
@@ -104,6 +108,11 @@ export const useAppState = () => {
 
   // Initialize app on start
   useEffect(() => {
+    // Show splash screen immediately
+    setShowSplash(true);
+    setIsCheckingSession(true);
+    
+    // Initialize app services
     initializeApp();
   }, []);
 

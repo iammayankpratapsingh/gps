@@ -1053,6 +1053,7 @@ class AuthService {
     }
   }
 
+
   private getErrorMessage(errorCode: string): string {
     switch (errorCode) {
       case 'auth/email-already-in-use':

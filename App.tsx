@@ -82,6 +82,7 @@ export default function App() {
     setDrawerResetCallback,
   } = useAppState();
 
+
   const {
     isDrawerOpen,
     drawerAnimation,
@@ -142,6 +143,7 @@ export default function App() {
   
   // Exit Confirmation State
   const [showExitPopup, setShowExitPopup] = useState(false);
+  
 
   const {
     handleProfilePhotoChange,
@@ -230,6 +232,8 @@ export default function App() {
   const handleOpenNotifications = () => {
     setShowNotifications(true);
   };
+
+
 
   // Delete Account Handlers
   const handleDeleteAccount = async () => {
@@ -476,13 +480,9 @@ export default function App() {
     // Don't close hamburger menu on cancel - let user continue using it
   };
 
-  if (showSplash) {
+  // Always show custom splash screen first, then handle session checking
+  if (showSplash || isCheckingSession) {
     return <SplashScreen onFinish={handleSplashFinish} />;
-  }
-
-  // Show splash while checking session
-  if (isCheckingSession) {
-    return <SplashScreen onFinish={() => {}} />;
   }
 
   if (!isAuthenticated) {
@@ -573,6 +573,8 @@ export default function App() {
   }
 
 
+
+
   // Render current tab content with dual animations
   const renderTabContent = () => {
     const tabs = ['devices', 'reports', 'settings', 'account'];
@@ -603,8 +605,8 @@ export default function App() {
                     colors={colors}
                     onMenuPress={toggleDrawer}
                     onAddDevicePress={() => setShowAddDevice(true)}
-                    onFilterPress={() => setShowSearchScreen(true)}
                     onSearchPress={() => setShowSearchScreen(true)}
+                    notificationCount={3} // TODO: Replace with actual notification count
                   />
 
                   {/* Main Dashboard */}

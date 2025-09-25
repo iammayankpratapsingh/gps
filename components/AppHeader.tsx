@@ -9,67 +9,80 @@ interface AppHeaderProps {
   colors: any;
   onMenuPress: () => void;
   onAddDevicePress: () => void;
-  onFilterPress: () => void;
   onSearchPress: () => void;
+  notificationCount?: number;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   colors,
   onMenuPress,
   onAddDevicePress,
-  onFilterPress,
   onSearchPress,
+  notificationCount = 0,
 }) => {
   const { t } = useTranslation('common');
+  
   return (
     <SafeAreaView
       edges={['top']}
       style={{
         backgroundColor: colors.header,
-        zIndex: 10000, // Very high z-index to stay above summary cards
+        zIndex: 10000,
       }}
     >
       <View style={[styles.header, { backgroundColor: colors.header, zIndex: 10000 }]}>
         <View style={styles.headerContent}>
-          {/* Menu button */}
-          <TouchableOpacity 
-            style={[styles.listGridButton, { backgroundColor: colors.input }]}
-            onPress={onMenuPress}
-          >
-            <Icon name="menu" size={24} color={colors.text} />
-          </TouchableOpacity>
-          
-          {/* Search bar - opens full screen search */}
-          <TouchableOpacity 
-            style={[
-              styles.searchContainer,
-              { 
-                backgroundColor: colors.input, 
-                borderColor: colors.border, 
-                borderWidth: 1 
-              }
-            ]}
-            onPress={onSearchPress}
-          >
-            <Text style={[styles.searchPlaceholder, { color: colors.textSecondary }]}>
-              {t('search')} {t('devices')}
-            </Text>
-            
+          {/* Left side - Menu and App Title */}
+          <View style={styles.leftSection}>
             <TouchableOpacity 
-              style={styles.filterButton}
-              onPress={onFilterPress}
+              style={styles.menuButton}
+              onPress={onMenuPress}
             >
-              <Icon name="tune" size={20} color={colors.text} />
+              <Icon name="menu" size={22} color={colors.text} />
             </TouchableOpacity>
-          </TouchableOpacity>
+            
+            {/* App Title */}
+            <Text style={[styles.appTitle, { color: colors.text }]}>
+              GPS Tracker
+            </Text>
+          </View>
           
-          {/* Add button */}
-          <TouchableOpacity 
-            style={[styles.addButton, { backgroundColor: colors.primary }]}
-            onPress={onAddDevicePress}
-          >
-            <Icon name="add" size={24} color="#ffffff" />
-          </TouchableOpacity>
+          {/* Right side icons */}
+          <View style={styles.rightIcons}>
+            {/* Search Icon */}
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={onSearchPress}
+            >
+              <Icon name="search" size={22} color={colors.text} />
+            </TouchableOpacity>
+            
+            {/* Notification Bell with Badge */}
+            <TouchableOpacity 
+              style={styles.iconButton}
+              onPress={() => {
+                // TODO: Add notification press handler
+                console.log('Notification pressed');
+              }}
+            >
+              <Icon name="notifications" size={22} color={colors.text} />
+              {notificationCount > 0 && (
+                <View style={[styles.notificationBadge, { backgroundColor: colors.error }]}>
+                  <Text style={styles.notificationBadgeText}>
+                    {notificationCount > 99 ? '99+' : notificationCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            
+            {/* Add Device Button */}
+            <TouchableOpacity 
+              style={[styles.addButton, { backgroundColor: colors.primary }]}
+              onPress={onAddDevicePress}
+            >
+              <Icon name="add" size={16} color="#ffffff" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </SafeAreaView>

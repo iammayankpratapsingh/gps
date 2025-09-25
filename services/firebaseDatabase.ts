@@ -65,7 +65,7 @@ class FirebaseDatabaseService {
           lastSeen: deviceData.location.timestamp,
           address: this.getAddressFromCoords(deviceData.location.coords),
           parameters: this.getParametersFromLocation(deviceData.location),
-          battery: Math.round(deviceData.location.battery.level * 100),
+          battery: Math.min(100, Math.max(0, Math.round(deviceData.location.battery.level))),
           owner: undefined
         }));
       }
@@ -411,7 +411,7 @@ class FirebaseDatabaseService {
           lastSeen: deviceData.location.timestamp,
           address: this.getAddressFromCoords(deviceData.location.coords),
           parameters: this.getParametersFromLocation(deviceData.location),
-          battery: Math.round(deviceData.location.battery.level * 100),
+          battery: Math.min(100, Math.max(0, Math.round(deviceData.location.battery.level))),
           owner: undefined
         });
       } else {

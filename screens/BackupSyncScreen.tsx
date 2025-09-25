@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 
@@ -9,6 +10,7 @@ interface BackupSyncScreenProps {
 }
 
 export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
+  const { t } = useTranslation('common');
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
   const [settings, setSettings] = useState({
     autoBackup: true,
@@ -37,33 +39,33 @@ export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
 
   const handleBackupNow = () => {
     Alert.alert(
-      'Backup Now',
-      'This will create a backup of your data. Make sure you have a stable internet connection.',
+      t('backupAlertTitle'),
+      t('backupAlertMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Backup', onPress: () => console.log('Starting backup...') }
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('backupNow'), onPress: () => console.log('Starting backup...') }
       ]
     );
   };
 
   const handleRestoreData = () => {
     Alert.alert(
-      'Restore Data',
-      'This will restore your data from the last backup. Current data will be replaced.',
+      t('restoreAlertTitle'),
+      t('restoreAlertMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Restore', onPress: () => console.log('Restoring data...') }
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('restoreData'), onPress: () => console.log('Restoring data...') }
       ]
     );
   };
 
   const handleSyncNow = () => {
     Alert.alert(
-      'Sync Now',
-      'This will sync your data with the cloud. Any changes will be synchronized.',
+      t('syncAlertTitle'),
+      t('syncAlertMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Sync', onPress: () => console.log('Starting sync...') }
+        { text: t('cancel'), style: 'cancel' },
+        { text: t('syncNow'), onPress: () => console.log('Starting sync...') }
       ]
     );
   };
@@ -203,7 +205,7 @@ export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>🛠️ Actions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>🛠️ {t('actions')}</Text>
           
           <TouchableOpacity
             style={[styles.actionButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
@@ -213,9 +215,9 @@ export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
             <View style={styles.actionContent}>
               <Text style={styles.actionIcon}>💾</Text>
               <View style={styles.actionText}>
-                <Text style={[styles.actionTitle, { color: colors.text }]}>Backup Now</Text>
+                <Text style={[styles.actionTitle, { color: colors.text }]}>{t('backupTitle')}</Text>
                 <Text style={[styles.actionDescription, { color: colors.textSecondary }]}>
-                  Create a backup of your data immediately
+                  {t('backupDescription')}
                 </Text>
               </View>
             </View>
@@ -230,9 +232,9 @@ export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
             <View style={styles.actionContent}>
               <Text style={styles.actionIcon}>🔄</Text>
               <View style={styles.actionText}>
-                <Text style={[styles.actionTitle, { color: colors.text }]}>Sync Now</Text>
+                <Text style={[styles.actionTitle, { color: colors.text }]}>{t('syncTitle')}</Text>
                 <Text style={[styles.actionDescription, { color: colors.textSecondary }]}>
-                  Sync your data with the cloud
+                  {t('syncDescription')}
                 </Text>
               </View>
             </View>
@@ -247,9 +249,9 @@ export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
             <View style={styles.actionContent}>
               <Text style={styles.actionIcon}>📥</Text>
               <View style={styles.actionText}>
-                <Text style={[styles.actionTitle, { color: colors.text }]}>Restore Data</Text>
+                <Text style={[styles.actionTitle, { color: colors.text }]}>{t('restoreTitle')}</Text>
                 <Text style={[styles.actionDescription, { color: colors.textSecondary }]}>
-                  Restore data from the last backup
+                  {t('restoreDescription')}
                 </Text>
               </View>
             </View>

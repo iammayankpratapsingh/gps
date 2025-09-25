@@ -101,7 +101,20 @@ export const TraccarDashboard: React.FC<TraccarDashboardProps> = ({ colors }) =>
 
   const formatBattery = (batteryLevel?: number): string => {
     if (batteryLevel === undefined || batteryLevel === null) return 'N/A';
-    return `${batteryLevel}%`;
+    
+    // If the value is already a percentage (0-100), use it directly
+    // If the value is a decimal (0-1), convert it to percentage
+    let batteryValue = batteryLevel;
+    if (batteryLevel > 1) {
+      // Value is already a percentage (like 79.0)
+      batteryValue = batteryLevel;
+    } else {
+      // Value is a decimal (like 0.79), convert to percentage
+      batteryValue = batteryLevel * 100;
+    }
+    
+    const clampedValue = Math.min(100, Math.max(0, Math.round(batteryValue)));
+    return `${clampedValue}%`;
   };
 
   const getStatusColor = (isOnline: boolean): string => {

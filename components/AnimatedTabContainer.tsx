@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Dimensions } from 'react-native';
+import { Animated, Dimensions, Easing } from 'react-native';
 
 interface AnimatedTabContainerProps {
   children: React.ReactNode;
@@ -34,12 +34,14 @@ export const AnimatedTabContainer: React.FC<AnimatedTabContainerProps> = ({
         Animated.parallel([
           Animated.timing(translateX, {
             toValue: 0,
-            duration: 300,
+            duration: 200,
+            easing: Easing.out(Easing.cubic),
             useNativeDriver: true,
           }),
           Animated.timing(opacity, {
             toValue: 1,
-            duration: 300,
+            duration: 200,
+            easing: Easing.out(Easing.cubic),
             useNativeDriver: true,
           }),
         ]).start();
@@ -55,12 +57,14 @@ export const AnimatedTabContainer: React.FC<AnimatedTabContainerProps> = ({
       Animated.parallel([
         Animated.timing(translateX, {
           toValue: endPosition,
-          duration: 300,
+          duration: 150,
+          easing: Easing.in(Easing.cubic),
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
           toValue: 0,
-          duration: 300,
+          duration: 150,
+          easing: Easing.in(Easing.cubic),
           useNativeDriver: true,
         }),
       ]).start();

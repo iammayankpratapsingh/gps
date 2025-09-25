@@ -68,7 +68,7 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
     { id: 'theme', title: t('theme'), icon: 'palette', action: onNavigateToTheme },
     { id: 'notifications', title: t('notifications'), icon: 'notifications', action: () => setSelectedScreen('notifications') },
     { id: 'privacy', title: t('privacy'), icon: 'security', action: () => setSelectedScreen('privacy') },
-    { id: 'backup', title: 'Backup & Sync', icon: 'cloud-upload', action: () => setSelectedScreen('backup') },
+    { id: 'backup', title: t('backupSync'), icon: 'cloud-upload', action: () => setSelectedScreen('backup') },
     { id: 'about', title: t('about'), icon: 'info', action: () => setSelectedScreen('about') },
   ];
 
