@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
 
@@ -9,6 +10,7 @@ interface PrivacySecurityScreenProps {
 }
 
 export default function PrivacySecurityScreen({ onBack }: PrivacySecurityScreenProps) {
+  const { t } = useTranslation('common');
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
   const [settings, setSettings] = useState({
     locationTracking: true,
@@ -96,37 +98,41 @@ export default function PrivacySecurityScreen({ onBack }: PrivacySecurityScreenP
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>🔒 Privacy Settings</Text>
           
           <SettingItem
-            title="Location Tracking"
-            description="Allow the app to track your device location"
+            title={t('locationTracking')}
+            description={t('locationTrackingDesc')}
             value={settings.locationTracking}
             onValueChange={(value) => handleSettingChange('locationTracking', value)}
             icon="📍"
           />
           
           <SettingItem
-            title="Data Collection"
-            description="Allow collection of usage data for app improvement"
+            title={t('dataCollection')}
+            description={t('dataCollectionDesc')}
             value={settings.dataCollection}
             onValueChange={(value) => handleSettingChange('dataCollection', value)}
             icon="📊"
           />
           
           <SettingItem
-            title="Analytics"
-            description="Share anonymous analytics to help improve the app"
+            title={t('analytics')}
+            description={t('analyticsDesc')}
             value={settings.analytics}
             onValueChange={(value) => handleSettingChange('analytics', value)}
             icon="📈"
           />
           
           <SettingItem
-            title="Crash Reports"
-            description="Automatically send crash reports to help fix issues"
+            title={t('crashReports')}
+            description={t('crashReportsDesc')}
             value={settings.crashReports}
             onValueChange={(value) => handleSettingChange('crashReports', value)}
             icon="🐛"
@@ -137,32 +143,32 @@ export default function PrivacySecurityScreen({ onBack }: PrivacySecurityScreenP
           <Text style={[styles.sectionTitle, { color: colors.text }]}>🛡️ Security Settings</Text>
           
           <SettingItem
-            title="Biometric Authentication"
-            description="Use fingerprint or face recognition to unlock the app"
+            title={t('biometricAuthentication')}
+            description={t('biometricAuthDesc')}
             value={settings.biometricAuth}
             onValueChange={(value) => handleSettingChange('biometricAuth', value)}
             icon="👆"
           />
           
           <SettingItem
-            title="Auto Lock"
-            description="Automatically lock the app after inactivity"
+            title={t('autoLock')}
+            description={t('autoLockDesc')}
             value={settings.autoLock}
             onValueChange={(value) => handleSettingChange('autoLock', value)}
             icon="🔐"
           />
           
           <SettingItem
-            title="Data Encryption"
-            description="Encrypt all stored data for maximum security"
+            title={t('dataEncryption')}
+            description={t('dataEncryptionDesc')}
             value={settings.dataEncryption}
             onValueChange={(value) => handleSettingChange('dataEncryption', value)}
             icon="🔒"
           />
           
           <SettingItem
-            title="Two-Factor Authentication"
-            description="Add an extra layer of security to your account"
+            title={t('twoFactorAuth')}
+            description={t('twoFactorAuthDesc')}
             value={settings.twoFactorAuth}
             onValueChange={(value) => handleSettingChange('twoFactorAuth', value)}
             icon="🔑"
@@ -242,6 +248,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Add bottom padding to prevent bottom navigation overlap
   },
   section: {
     marginBottom: 32,

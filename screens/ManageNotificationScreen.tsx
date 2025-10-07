@@ -110,7 +110,11 @@ export default function ManageNotificationScreen({ colors, onBack }: ManageNotif
       </View>
 
       {/* Content */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Notification Settings</Text>
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
@@ -204,6 +208,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Add bottom padding to prevent bottom navigation overlap
   },
   section: {
     marginTop: 24,

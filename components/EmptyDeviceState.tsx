@@ -39,23 +39,31 @@ export const EmptyDeviceState: React.FC<EmptyDeviceStateProps> = ({ colors, onAd
         </TouchableOpacity>
         
         <View style={styles.featuresContainer}>
-          <Text style={[styles.featuresTitle, { color: colors.text }]}>What you can do:</Text>
+          <Text style={[styles.featuresTitle, { color: colors.text }]}>{t('whatYouCanDo')}</Text>
           <View style={styles.featureList}>
             <View style={styles.featureItem}>
-              <Icon name="location-on" size={20} color="#0097b2" style={styles.featureIcon} />
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>Track real-time location</Text>
+              <View style={styles.bulletPoint}>
+                <Icon name="location-on" size={16} color="#0097b2" />
+              </View>
+              <Text style={[styles.featureText, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode="tail">{t('trackRealtimeLocation')}</Text>
             </View>
             <View style={styles.featureItem}>
-              <Icon name="assessment" size={20} color="#0097b2" style={styles.featureIcon} />
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>View detailed reports</Text>
+              <View style={styles.bulletPoint}>
+                <Icon name="assessment" size={16} color="#0097b2" />
+              </View>
+              <Text style={[styles.featureText, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode="tail">{t('viewDetailedReports')}</Text>
             </View>
             <View style={styles.featureItem}>
-              <Icon name="notifications" size={20} color="#0097b2" style={styles.featureIcon} />
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>Get notifications</Text>
+              <View style={styles.bulletPoint}>
+                <Icon name="notifications" size={16} color="#0097b2" />
+              </View>
+              <Text style={[styles.featureText, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode="tail">{t('getNotifications')}</Text>
             </View>
             <View style={styles.featureItem}>
-              <Icon name="route" size={20} color="#0097b2" style={styles.featureIcon} />
-              <Text style={[styles.featureText, { color: colors.textSecondary }]}>View route history</Text>
+              <View style={styles.bulletPoint}>
+                <Icon name="route" size={16} color="#0097b2" />
+              </View>
+              <Text style={[styles.featureText, { color: colors.textSecondary }]} numberOfLines={1} ellipsizeMode="tail">{t('viewRouteHistory')}</Text>
             </View>
           </View>
         </View>
@@ -80,6 +88,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   iconContainer: {
     width: 80,
@@ -103,13 +113,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 28,
+    paddingHorizontal: 8,
   },
   addButton: {
     paddingHorizontal: 32,
     paddingVertical: 16,
     borderRadius: 12,
-    marginBottom: 32,
+    marginBottom: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -122,27 +133,39 @@ const styles = StyleSheet.create({
   },
   featuresContainer: {
     width: '100%',
+    marginTop: 8,
+    paddingHorizontal: 4,
   },
   featuresTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom: 20,
     textAlign: 'center',
   },
   featureList: {
-    gap: 12,
+    gap: 16,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
+    paddingHorizontal: 0,
+    width: '100%',
   },
-  featureIcon: {
-    marginRight: 12,
-    width: 24,
+  bulletPoint: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#F0F8FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    flexShrink: 0,
   },
   featureText: {
     fontSize: 14,
     flex: 1,
+    lineHeight: 20,
+    flexWrap: 'wrap',
   },
 });

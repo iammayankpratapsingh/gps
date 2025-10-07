@@ -5,8 +5,6 @@ This document describes the complete multi-language (i18n) implementation for th
 ## 🌍 Supported Languages
 
 - **English** (en) - Default
-- **Spanish** (es) - Español
-- **Hindi** (hi) - हिन्दी
 - **French** (fr) - Français
 
 ## 📁 File Structure
@@ -16,12 +14,6 @@ locales/
 ├── en/
 │   ├── common.json      # Common UI elements
 │   └── devices.json     # Device-related translations
-├── es/
-│   ├── common.json
-│   └── devices.json
-├── hi/
-│   ├── common.json
-│   └── devices.json
 └── fr/
     ├── common.json
     └── devices.json
@@ -116,7 +108,7 @@ const MyComponent = () => {
 
 ### ✅ Implemented
 
-- [x] Multi-language support (EN, ES, HI)
+- [x] Multi-language support (EN, FR)
 - [x] Automatic language detection
 - [x] Persistent language storage
 - [x] Language switcher UI

@@ -14,8 +14,7 @@ export const createMenuItems = (
   onOpenPrivacyPolicy: () => void,
   onOpenShare: () => void,
   onOpenRateUs: () => void,
-  onOpenPreviousRoutes: () => void,
-  onOpenNotifications: () => void
+  onOpenPreviousRoutes: () => void
 ): MenuItem[] => [
   { id: 1, titleKey: 'defaultMapType', icon: 'map', color: '#0097b2', action: onOpenDefaultMapType },
   { id: 2, titleKey: 'manageNotification', icon: 'settings', color: '#0097b2', action: onOpenManageNotification },
@@ -24,6 +23,5 @@ export const createMenuItems = (
   { id: 5, titleKey: 'rateUs', icon: 'star', color: '#0097b2', action: onOpenRateUs },
   { id: 6, titleKey: 'manageTheme', icon: 'palette', color: '#0097b2', action: onOpenThemeManagement },
   { id: 7, titleKey: 'previousRoutes', icon: 'route', color: '#0097b2', action: onOpenPreviousRoutes },
-  { id: 8, titleKey: 'notifications', icon: 'notifications', color: '#0097b2', action: onOpenNotifications },
-  { id: 9, titleKey: 'deleteAccount', icon: 'delete', color: '#dc3545', action: onDeleteAccount },
+  { id: 8, titleKey: 'deleteAccount', icon: 'delete', color: '#dc3545', action: onDeleteAccount },
 ];

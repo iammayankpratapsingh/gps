@@ -42,5 +42,10 @@
   "deviceAnalytics": "Device Analytics",
   "deviceAlerts": "Device Alerts",
   "deviceNotifications": "Device Notifications",
-  "devicePermissions": "Device Permissions"
+  "devicePermissions": "Device Permissions",
+  "whatYouCanDo": "What you can do:",
+  "trackRealtimeLocation": "Track real‑time location",
+  "viewDetailedReports": "View detailed reports",
+  "getNotifications": "Get notifications",
+  "viewRouteHistory": "View route history"
 }

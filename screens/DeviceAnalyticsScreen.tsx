@@ -31,7 +31,11 @@ export default function DeviceAnalyticsScreen({ onBack }: DeviceAnalyticsScreenP
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.section}>
           <View style={styles.sectionTitleContainer}>
             <Icon name="analytics" size={20} color={colors.primary} style={styles.sectionIcon} />
@@ -135,6 +139,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Prevent bottom navigator overlap
   },
   section: {
     marginBottom: 24,

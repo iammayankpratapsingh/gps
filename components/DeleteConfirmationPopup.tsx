@@ -8,6 +8,7 @@ import {
   TextInput,
   ActivityIndicator
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 interface DeleteConfirmationPopupProps {
   visible: boolean;
@@ -26,6 +27,7 @@ export const DeleteConfirmationPopup: React.FC<DeleteConfirmationPopupProps> = (
   isLoading = false,
   errorMessage,
 }) => {
+  const { t } = useTranslation('common');
   const [deleteText, setDeleteText] = useState('');
   const [localErrorMessage, setLocalErrorMessage] = useState<string | null>(null);
 
@@ -39,7 +41,7 @@ export const DeleteConfirmationPopup: React.FC<DeleteConfirmationPopupProps> = (
 
   const handleConfirm = () => {
     if (deleteText.trim().toUpperCase() !== 'DELETE') {
-      setLocalErrorMessage('Please type "DELETE" to confirm');
+      setLocalErrorMessage(t('typeDeleteToConfirm'));
       return;
     }
     onConfirm();
@@ -69,18 +71,18 @@ export const DeleteConfirmationPopup: React.FC<DeleteConfirmationPopupProps> = (
 
           {/* Title */}
           <Text style={[styles.title, { color: colors.text }]}>
-            Final Confirmation
+            {t('finalConfirmation')}
           </Text>
 
           {/* Description */}
           <Text style={[styles.description, { color: colors.textSecondary }]}>
-            This action cannot be undone. Type <Text style={{ fontWeight: 'bold', color: colors.error }}>DELETE</Text> to confirm account deletion.
+            {t('deleteConfirmationMessage')}
           </Text>
 
           {/* Type DELETE Input */}
           <View style={styles.inputContainer}>
             <Text style={[styles.inputLabel, { color: colors.text }]}>
-              Type "DELETE" to confirm
+              {t('typeDeleteToConfirm')}
             </Text>
             <TextInput
               style={[styles.input, { 
@@ -90,7 +92,7 @@ export const DeleteConfirmationPopup: React.FC<DeleteConfirmationPopupProps> = (
               }]}
               value={deleteText}
               onChangeText={setDeleteText}
-              placeholder="Type DELETE here"
+              placeholder={t('typeDeletePlaceholder')}
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="characters"
               editable={!isLoading}
@@ -115,7 +117,7 @@ export const DeleteConfirmationPopup: React.FC<DeleteConfirmationPopupProps> = (
               disabled={isLoading}
             >
               <Text style={[styles.cancelButtonText, { color: colors.text }]}>
-                Cancel
+                {t('cancel')}
               </Text>
             </TouchableOpacity>
 
@@ -135,7 +137,7 @@ export const DeleteConfirmationPopup: React.FC<DeleteConfirmationPopupProps> = (
                 <ActivityIndicator color="#ffffff" size="small" />
               ) : (
                 <Text style={styles.confirmButtonText}>
-                  Delete Account
+                  {t('deleteAccountButton')}
                 </Text>
               )}
             </TouchableOpacity>
@@ -147,7 +149,7 @@ export const DeleteConfirmationPopup: React.FC<DeleteConfirmationPopupProps> = (
               style={[styles.retryButton, { backgroundColor: colors.primary }]}
               onPress={handleConfirm}
             >
-              <Text style={[styles.retryButtonText, { color: 'white' }]}>Retry Delete</Text>
+              <Text style={[styles.retryButtonText, { color: 'white' }]}>{t('retryDelete')}</Text>
             </TouchableOpacity>
           )}
         </View>

@@ -120,29 +120,33 @@ export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>☁️ Backup Settings</Text>
           
           <SettingItem
-            title="Auto Backup"
-            description="Automatically backup your data daily"
+            title={t('autoBackup')}
+            description={t('autoBackupDesc')}
             value={settings.autoBackup}
             onValueChange={(value) => handleSettingChange('autoBackup', value)}
             icon="🔄"
           />
           
           <SettingItem
-            title="WiFi Only"
-            description="Only backup when connected to WiFi"
+            title={t('wifiOnly')}
+            description={t('wifiOnlyDesc')}
             value={settings.wifiOnly}
             onValueChange={(value) => handleSettingChange('wifiOnly', value)}
             icon="📶"
           />
           
           <SettingItem
-            title="Cloud Sync"
-            description="Sync data across all your devices"
+            title={t('cloudSync')}
+            description={t('cloudSyncDesc')}
             value={settings.cloudSync}
             onValueChange={(value) => handleSettingChange('cloudSync', value)}
             icon="☁️"
@@ -153,32 +157,32 @@ export default function BackupSyncScreen({ onBack }: BackupSyncScreenProps) {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>📦 What to Backup</Text>
           
           <SettingItem
-            title="Device Data"
-            description="Backup device information and settings"
+            title={t('deviceData')}
+            description={t('deviceDataDesc')}
             value={settings.deviceData}
             onValueChange={(value) => handleSettingChange('deviceData', value)}
             icon="📱"
           />
           
           <SettingItem
-            title="Routes"
-            description="Backup route history and saved routes"
+            title={t('routes')}
+            description={t('routesDesc')}
             value={settings.routes}
             onValueChange={(value) => handleSettingChange('routes', value)}
             icon="🗺️"
           />
           
           <SettingItem
-            title="App Settings"
-            description="Backup app preferences and configurations"
+            title={t('appSettings')}
+            description={t('appSettingsDesc')}
             value={settings.settings}
             onValueChange={(value) => handleSettingChange('settings', value)}
             icon="⚙️"
           />
           
           <SettingItem
-            title="Notifications"
-            description="Backup notification history and preferences"
+            title={t('notifications')}
+            description={t('notificationsDesc')}
             value={settings.notifications}
             onValueChange={(value) => handleSettingChange('notifications', value)}
             icon="🔔"
@@ -294,6 +298,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Add bottom padding to prevent bottom navigation overlap
   },
   section: {
     marginBottom: 32,

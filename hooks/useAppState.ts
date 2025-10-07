@@ -161,7 +161,10 @@ export const useAppState = () => {
 
   const handleLogout = async () => {
     try {
+      console.log('Starting logout process...');
       await authService.signOutUser();
+      console.log('Auth service signOut completed');
+      
       setIsAuthenticated(false);
       setUserData(null);
       setProfileImage(null);
@@ -173,14 +176,29 @@ export const useAppState = () => {
       setTotalDevices(0);
       setOnlineDevices(0);
       setOfflineDevices(0);
+      
+      console.log('Logout completed successfully');
     } catch (error) {
       console.error('Logout error:', error);
+      // Even if logout fails, clear local state to prevent app from being stuck
+      setIsAuthenticated(false);
+      setUserData(null);
+      setProfileImage(null);
+      setShowProfileScreen(false);
+      deviceService.updateCurrentUser(null);
+      setDevices([]);
+      setTotalDevices(0);
+      setOnlineDevices(0);
+      setOfflineDevices(0);
     }
   };
 
   const handleLogin = async (user: UserData) => {
     try {
       console.log('handleLogin called with user:', user);
+      
+      // Check if user is superadmin - this will be handled by the parent App component
+      // We'll just set the regular user state here
       setUserData(user);
       setIsAuthenticated(true);
       

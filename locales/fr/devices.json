@@ -42,5 +42,10 @@
   "deviceAnalytics": "Analyses de l'appareil",
   "deviceAlerts": "Alertes de l'appareil",
   "deviceNotifications": "Notifications de l'appareil",
-  "devicePermissions": "Autorisations de l'appareil"
+  "devicePermissions": "Autorisations de l'appareil",
+  "whatYouCanDo": "Ce que vous pouvez faire :",
+  "trackRealtimeLocation": "Suivre la localisation en temps réel",
+  "viewDetailedReports": "Voir les rapports détaillés",
+  "getNotifications": "Recevoir des notifications",
+  "viewRouteHistory": "Voir l'historique des routes"
 }

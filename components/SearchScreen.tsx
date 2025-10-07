@@ -11,21 +11,28 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { TraccarDevice } from '../services/traccarServiceSimple';
 import { useDevices, DeviceFilter } from '../contexts/DeviceContext';
-import { FilterOptions } from './FilterOptions';
 
 interface SearchScreenProps {
   colors: any;
   onBack: () => void;
   onDeviceSelect: (device: TraccarDevice) => void;
+  addedDevices?: Array<{
+    traccarDeviceId: string;
+    customName: string;
+    deviceId: string;
+  }>;
 }
 
 export const SearchScreen: React.FC<SearchScreenProps> = ({
   colors,
   onBack,
   onDeviceSelect,
+  addedDevices = [],
 }) => {
+  const { t } = useTranslation('common');
   const { devices, selectDevice, deviceFilter, setDeviceFilter, getFilteredDevices } = useDevices();
   
   // Safety check to prevent crashes
@@ -51,20 +58,32 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   }
   const [searchText, setSearchText] = useState('');
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const [showFilterOptions, setShowFilterOptions] = useState(false);
   const searchInputRef = useRef<TextInput>(null);
 
-  // Get filtered devices based on current filter
-  const filteredByStatus = getFilteredDevices();
+  // Get only devices that are in the addedDevices list (devices from Devices Tab)
+  const addedDeviceIds = addedDevices.map(ad => ad.traccarDeviceId);
+  console.log('[SearchScreen] Added devices:', addedDevices);
+  console.log('[SearchScreen] Added device IDs:', addedDeviceIds);
+  console.log('[SearchScreen] Available devices:', devices.map(d => ({ id: d.id, uniqueId: d.uniqueId, name: d.name })));
   
-  // Further filter by search text
+  // If no addedDevices, show all devices (fallback for testing)
+  const devicesFromTab = addedDevices.length > 0 
+    ? devices.filter(device => addedDeviceIds.includes(device.uniqueId))
+    : devices; // Show all devices if no addedDevices (for testing)
+  
+  console.log('[SearchScreen] Filtered devices from tab:', devicesFromTab.length);
+  
+  // Filter by search text
   const filteredDevices = searchText.trim() === ''
-    ? filteredByStatus
-    : filteredByStatus.filter(device =>
-        device.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        device.uniqueId.toLowerCase().includes(searchText.toLowerCase()) ||
-        device.status.toLowerCase().includes(searchText.toLowerCase())
-      );
+    ? devicesFromTab
+    : devicesFromTab.filter(device => {
+        const addedDevice = addedDevices.find(ad => ad.traccarDeviceId === device.uniqueId);
+        const displayName = addedDevice ? addedDevice.customName : device.name;
+        
+        return displayName.toLowerCase().includes(searchText.toLowerCase()) ||
+               device.uniqueId.toLowerCase().includes(searchText.toLowerCase()) ||
+               device.status.toLowerCase().includes(searchText.toLowerCase());
+      });
 
   // Auto-focus search input when screen opens
   useEffect(() => {
@@ -111,14 +130,6 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
     searchInputRef.current?.focus();
   };
 
-  const handleFilterPress = () => {
-    try {
-      setShowFilterOptions(true);
-    } catch (error) {
-      console.error('[SearchScreen] Error opening filter options:', error);
-    }
-  };
-
   const getFilterLabel = (filter: DeviceFilter): string => {
     switch (filter) {
       case 'all': return 'All Devices';
@@ -131,18 +142,14 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   return (
     <View style={[styles.fullScreenContainer, { backgroundColor: colors.background }]}>
       <SafeAreaView
-        style={[styles.container, { backgroundColor: colors.background }]}
         edges={['top']}
+        style={{
+          backgroundColor: colors.header,
+          zIndex: 500,
+        }}
       >
-        <StatusBar
-          barStyle={colors.text === '#ffffff' ? 'light-content' : 'dark-content'}
-          backgroundColor={colors.header}
-          translucent={false}
-          animated={true}
-        />
-
-      {/* Header with Back Button and Search Input */}
-      <View style={[styles.header, { backgroundColor: colors.header }]}>
+        {/* Header with Back Button and Search Input */}
+        <View style={[styles.header, { backgroundColor: colors.header, zIndex: 10000 }]}>
         <View style={styles.headerContent}>
           {/* Back Button */}
           <TouchableOpacity
@@ -164,7 +171,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
             <TextInput
               ref={searchInputRef}
               style={[styles.searchInput, { color: colors.text }]}
-              placeholder="Search Devices"
+              placeholder={t('searchDevices')}
               placeholderTextColor={colors.textSecondary}
               value={searchText}
               onChangeText={setSearchText}
@@ -184,17 +191,6 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
               </TouchableOpacity>
             )}
 
-            {/* Filter Button */}
-            <TouchableOpacity
-              style={[styles.filterButton, { backgroundColor: deviceFilter !== 'all' ? colors.primary : 'transparent' }]}
-              onPress={handleFilterPress}
-            >
-              <View style={styles.threeDotsContainer}>
-                <View style={[styles.dot, { backgroundColor: deviceFilter !== 'all' ? '#ffffff' : colors.text }]} />
-                <View style={[styles.dot, { backgroundColor: deviceFilter !== 'all' ? '#ffffff' : colors.text }]} />
-                <View style={[styles.dot, { backgroundColor: deviceFilter !== 'all' ? '#ffffff' : colors.text }]} />
-              </View>
-            </TouchableOpacity>
           </View>
         </View>
       </View>
@@ -205,8 +201,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
         <View style={[styles.resultsHeader, { borderBottomColor: colors.border }]}>
           <Text style={[styles.resultsHeaderText, { color: colors.textSecondary }]}>
             {searchText.trim() === ''
-              ? `${getFilterLabel(deviceFilter)} (${filteredDevices.length})`
-              : `Found ${filteredDevices.length} device${filteredDevices.length !== 1 ? 's' : ''} in ${getFilterLabel(deviceFilter).toLowerCase()}`
+              ? `My Devices (${filteredDevices.length})`
+              : `Found ${filteredDevices.length} device${filteredDevices.length !== 1 ? 's' : ''}`
             }
           </Text>
         </View>
@@ -222,48 +218,54 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
           ]}
         >
           {filteredDevices.length > 0 ? (
-            filteredDevices.map((device, index) => (
-              <TouchableOpacity
-                key={device.id}
-                style={[
-                  styles.deviceItem,
-                  {
-                    borderBottomColor: colors.border,
-                    backgroundColor: index % 2 === 0 ? 'transparent' : colors.input + '20'
-                  }
-                ]}
-                onPress={() => handleDeviceSelect(device)}
-              >
-                <View style={styles.deviceItemContent}>
-                  <View style={styles.deviceInfo}>
-                    <Text style={[styles.deviceName, { color: colors.text }]}>
-                      {device.name}
-                    </Text>
-                    <Text style={[styles.deviceId, { color: colors.textSecondary }]}>
-                      ID: {device.uniqueId}
-                    </Text>
-                    <Text style={[styles.deviceType, { color: colors.textSecondary }]}>
-                      Model: {device.model || 'Unknown'}
-                    </Text>
-                    <Text style={[styles.deviceParams, { color: colors.textSecondary }]}>
-                      Category: {device.category || 'Default'}
-                    </Text>
-                    <Text style={[styles.recentTimeText, { color: colors.primary }]}>
-                      <Icon name="schedule" size={14} color={colors.textSecondary} style={{ marginRight: 4 }} />
-                      Last Update: {new Date(device.lastUpdate).toLocaleString()}
-                    </Text>
+            filteredDevices.map((device, index) => {
+              // Get custom name if available
+              const addedDevice = addedDevices.find(ad => ad.traccarDeviceId === device.uniqueId);
+              const displayName = addedDevice ? addedDevice.customName : device.name;
+              
+              return (
+                <TouchableOpacity
+                  key={device.id}
+                  style={[
+                    styles.deviceItem,
+                    {
+                      borderBottomColor: colors.border,
+                      backgroundColor: index % 2 === 0 ? 'transparent' : colors.input + '20'
+                    }
+                  ]}
+                  onPress={() => handleDeviceSelect(device)}
+                >
+                  <View style={styles.deviceItemContent}>
+                    <View style={styles.deviceInfo}>
+                      <Text style={[styles.deviceName, { color: colors.text }]}>
+                        {displayName}
+                      </Text>
+                      <Text style={[styles.deviceId, { color: colors.textSecondary }]}>
+                        ID: {device.uniqueId}
+                      </Text>
+                      <Text style={[styles.deviceType, { color: colors.textSecondary }]}>
+                        Model: {device.model || 'Unknown'}
+                      </Text>
+                      <Text style={[styles.deviceParams, { color: colors.textSecondary }]}>
+                        Category: {device.category || 'Default'}
+                      </Text>
+                      <Text style={[styles.recentTimeText, { color: colors.primary }]}>
+                        <Icon name="schedule" size={14} color={colors.textSecondary} style={{ marginRight: 4 }} />
+                        Last Update: {new Date(device.lastUpdate).toLocaleString()}
+                      </Text>
+                    </View>
+                    <View style={[
+                      styles.statusIndicator,
+                      { backgroundColor: device.status.toLowerCase() === 'online' ? colors.success : colors.error }
+                    ]}>
+                      <Text style={styles.statusText}>
+                        {device.status.toUpperCase()}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={[
-                    styles.statusIndicator,
-                    { backgroundColor: device.status.toLowerCase() === 'online' ? colors.success : colors.error }
-                  ]}>
-                    <Text style={styles.statusText}>
-                      {device.status.toUpperCase()}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))
+                </TouchableOpacity>
+              );
+            })
           ) : (
             <View style={styles.emptyState}>
               <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
@@ -284,14 +286,6 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
       </View>
       </SafeAreaView>
 
-      {/* Filter Options Modal */}
-      <FilterOptions
-        colors={colors}
-        currentFilter={deviceFilter}
-        onFilterSelect={setDeviceFilter}
-        onClose={() => setShowFilterOptions(false)}
-        visible={showFilterOptions}
-      />
     </View>
   );
 };
@@ -311,11 +305,6 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 4,
   },
   headerContent: {
     flexDirection: 'row',
@@ -328,11 +317,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   backIcon: {
     fontSize: 20,
@@ -345,13 +329,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
+    height: 40,
     minHeight: 40,
+    maxHeight: 40,
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
     paddingVertical: 0,
     paddingHorizontal: 0,
+    height: 20,
+    minHeight: 20,
+    maxHeight: 20,
   },
   clearButton: {
     paddingHorizontal: 8,

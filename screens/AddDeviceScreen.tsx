@@ -14,7 +14,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import themeService, { Theme, ThemeColors } from '../services/themeService';
 import deviceService from '../services/deviceService';
 import simpleTraccarService from '../services/traccarServiceSimple';
-import { useStatusBar } from '../hooks/useStatusBar';
 
 interface AddDeviceScreenProps {
   onClose: () => void;
@@ -86,8 +85,6 @@ const TIMEZONES = [
 export default function AddDeviceScreen({ onClose, onAddDevice, theme }: AddDeviceScreenProps) {
   const [colors, setColors] = useState<ThemeColors>(themeService.getColors());
   
-  // Professional status bar that matches header color
-  useStatusBar({ colors, animated: true });
   
   const [formData, setFormData] = useState<DeviceData>({
     objectType: 'Two Wheeler',
@@ -103,21 +100,13 @@ export default function AddDeviceScreen({ onClose, onAddDevice, theme }: AddDevi
   const [showBLEScan, setShowBLEScan] = useState(false);
   const [bleDevices, setBleDevices] = useState<Array<{id: string, name: string, imei: string, sim: string}>>([]);
   const [isConnecting, setIsConnecting] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-
   useEffect(() => {
     const unsubscribe = themeService.subscribe((currentTheme) => {
       setColors(themeService.getColors());
     });
     
-    // Small delay to ensure proper rendering on first launch
-    const timer = setTimeout(() => {
-      setIsReady(true);
-    }, 100);
-    
     return () => {
       unsubscribe();
-      clearTimeout(timer);
     };
   }, []);
 
@@ -235,37 +224,47 @@ export default function AddDeviceScreen({ onClose, onAddDevice, theme }: AddDevi
 
   const styles = StyleSheet.create({
     container: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
       flex: 1,
-      backgroundColor: colors.background,
-      zIndex: 1000,
-    },
-    safeArea: {
-      backgroundColor: colors.header,
-      minHeight: 70, // Reduced header height
     },
     header: {
-      backgroundColor: colors.header,
+      paddingHorizontal: 16,
+      paddingTop: 20, // Increased to create space from status bar
+      paddingBottom: 12,
       borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      paddingBottom: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 4,
     },
     headerContent: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 20,
-      paddingVertical: 8, // Reduced padding
-      minHeight: 40, // Reduced minimum height
+    },
+    backButton: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    backIcon: {
+      fontSize: 20,
+      fontWeight: 'bold',
     },
     headerTitle: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: colors.text,
+      flex: 1,
+      alignItems: 'center',
+    },
+    headerTitleText: {
+      fontSize: 20,
+      fontWeight: '700',
     },
     closeButton: {
       width: 32,
@@ -537,28 +536,35 @@ export default function AddDeviceScreen({ onClose, onAddDevice, theme }: AddDevi
     },
   });
 
-  // Don't render until ready to prevent layout issues
-  if (!isReady) {
-    return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Loading...</Text>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <Text style={styles.headerTitle}>+ Add Device</Text>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>✕</Text>
-            </TouchableOpacity>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <StatusBar
+        barStyle={colors.text === '#ffffff' ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.header}
+        translucent={false}
+        animated={true}
+      />
+      
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: colors.header, borderBottomColor: colors.border }]}>
+        <View style={styles.headerContent}>
+          <TouchableOpacity
+            style={[styles.backButton, { backgroundColor: colors.surface }]}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
+          </TouchableOpacity>
+          
+          <View style={styles.headerTitle}>
+            <Text style={[styles.headerTitleText, { color: colors.text }]}>
+              Add Device
+            </Text>
           </View>
+          
+          <View style={{ width: 40 }} />
         </View>
-      </SafeAreaView>
+      </View>
 
       <ScrollView 
         style={styles.content}
@@ -762,6 +768,6 @@ export default function AddDeviceScreen({ onClose, onAddDevice, theme }: AddDevi
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }

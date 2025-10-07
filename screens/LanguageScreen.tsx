@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../contexts/LanguageContext';
 import themeService, { ThemeColors } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
-import LanguageSwitcher from '../components/LanguageSwitcher';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface LanguageScreenProps {
   onBack: () => void;
@@ -12,7 +13,9 @@ interface LanguageScreenProps {
 
 export default function LanguageScreen({ onBack }: LanguageScreenProps) {
   const { t } = useTranslation('common');
+  const { currentLanguage, changeLanguage, isLoading } = useLanguage();
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
+  const [toggleAnimation] = React.useState(new Animated.Value(currentLanguage === 'fr' ? 1 : 0));
   
   // Professional status bar that matches header color
   useStatusBar({ colors, animated: true });
@@ -24,6 +27,39 @@ export default function LanguageScreen({ onBack }: LanguageScreenProps) {
     return unsubscribe;
   }, []);
 
+  const handleToggle = async () => {
+    if (isLoading) return;
+    
+    const newLanguage = currentLanguage === 'en' ? 'fr' : 'en';
+    
+    try {
+      // Animate the toggle switch
+      Animated.timing(toggleAnimation, {
+        toValue: newLanguage === 'fr' ? 1 : 0,
+        duration: 150,
+        useNativeDriver: false,
+      }).start();
+
+      await changeLanguage(newLanguage);
+    } catch (error) {
+      console.log('Error changing language:', error);
+    }
+  };
+
+  // Update animation when currentLanguage changes from external source
+  React.useEffect(() => {
+    Animated.timing(toggleAnimation, {
+      toValue: currentLanguage === 'fr' ? 1 : 0,
+      duration: 150,
+      useNativeDriver: false,
+    }).start();
+  }, [currentLanguage]);
+
+  const translateX = toggleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 32], // Move 32px to the right when French is selected
+  });
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView style={[styles.content, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
@@ -34,22 +70,68 @@ export default function LanguageScreen({ onBack }: LanguageScreenProps) {
           </Text>
         </View>
 
-        {/* Language Switcher */}
-        <LanguageSwitcher colors={colors} />
+        {/* Language Toggle */}
+        <View style={[styles.toggleContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <View style={styles.toggleHeader}>
+            <Icon name="language" size={24} color={colors.primary} />
+            <Text style={[styles.toggleTitle, { color: colors.text }]}>{t('language')}</Text>
+          </View>
+          
+          <TouchableOpacity
+            style={[styles.toggleRow, { borderBottomColor: colors.border }]}
+            onPress={handleToggle}
+            disabled={isLoading}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.toggleLabel, { color: colors.text }]}>
+              {t('language')}
+            </Text>
+            
+            <View style={[styles.toggleSwitch, { backgroundColor: colors.border }]}>
+              <Animated.View 
+                style={[
+                  styles.toggleThumb, 
+                  { 
+                    backgroundColor: colors.primary,
+                    transform: [{ translateX }]
+                  }
+                ]} 
+              />
+              <View style={styles.toggleLabels}>
+                <Text style={[
+                  styles.toggleLabelText, 
+                  { 
+                    color: currentLanguage === 'en' ? colors.primary : colors.textSecondary,
+                    fontWeight: currentLanguage === 'en' ? '600' : '400'
+                  }
+                ]}>
+                  EN
+                </Text>
+                <Text style={[
+                  styles.toggleLabelText, 
+                  { 
+                    color: currentLanguage === 'fr' ? colors.primary : colors.textSecondary,
+                    fontWeight: currentLanguage === 'fr' ? '600' : '400'
+                  }
+                ]}>
+                  FR
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
         
         <View style={[styles.infoContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[styles.infoTitle, { color: colors.text }]}>Language Support</Text>
+          <Text style={[styles.infoTitle, { color: colors.text }]}>{t('languageSupport')}</Text>
           <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            Currently supported languages:
+            {t('currentlySupportedLanguages')}
           </Text>
           <View style={styles.languageList}>
-            <Text style={[styles.languageItem, { color: colors.text }]}>• English</Text>
-            <Text style={[styles.languageItem, { color: colors.text }]}>• Español (Spanish)</Text>
-            <Text style={[styles.languageItem, { color: colors.text }]}>• हिन्दी (Hindi)</Text>
-            <Text style={[styles.languageItem, { color: colors.text }]}>• Français (French)</Text>
+            <Text style={[styles.languageItem, { color: colors.text }]}>• {t('english')}</Text>
+            <Text style={[styles.languageItem, { color: colors.text }]}>• {t('french')}</Text>
           </View>
           <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-            More languages will be added in future updates.
+            {t('moreLanguagesComing')}
           </Text>
         </View>
       </ScrollView>
@@ -77,8 +159,74 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
+  toggleContainer: {
+    marginBottom: 30,
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  toggleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  toggleTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginLeft: 12,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+  },
+  toggleLabel: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '400',
+  },
+  toggleSwitch: {
+    width: 64,
+    height: 32,
+    borderRadius: 16,
+    padding: 2,
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  toggleThumb: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    position: 'absolute',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  toggleLabels: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+  },
+  toggleLabelText: {
+    fontSize: 12,
+    fontWeight: '500',
+    textAlign: 'center',
+    width: 20,
+  },
   infoContainer: {
-    marginTop: 30,
+    marginTop: 0,
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,

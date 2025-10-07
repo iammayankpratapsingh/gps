@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, BackHandler } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, BackHandler, Animated, Dimensions, Easing } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
@@ -11,11 +11,22 @@ import BatteryReportsScreen from './BatteryReportsScreen';
 import PerformanceMetricsScreen from './PerformanceMetricsScreen';
 import ExitConfirmationPopup from '../components/ExitConfirmationPopup';
 
+const { width: screenWidth } = Dimensions.get('window');
+
 export default function ReportsScreen() {
   const { t } = useTranslation('common');
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
+  const [isExitingReport, setIsExitingReport] = useState(false);
   const [showExitPopup, setShowExitPopup] = useState(false);
+  
+  // Animation values for main screen
+  const translateX = useRef(new Animated.Value(0)).current;
+  
+  
+  // Animation values for report screen
+  const reportTranslateX = useRef(new Animated.Value(screenWidth)).current;
+  
   
   // Professional status bar that matches header color
   useStatusBar({ colors, animated: true });
@@ -30,12 +41,13 @@ export default function ReportsScreen() {
   // Back handler for exit confirmation
   useEffect(() => {
     const backAction = () => {
-      // If user is on a deep screen (not main reports screen), handle normal back navigation
+      // If user is on a deep screen (not main reports screen), trigger unified back handler
       if (selectedReport) {
-        setSelectedReport(null);
+        if (!isExitingReport) {
+          handleBack();
+        }
         return true; // Prevent default back behavior
       }
-      
       // If user is on main reports screen, show exit confirmation
       setShowExitPopup(true);
       return true; // Prevent default back behavior
@@ -44,14 +56,70 @@ export default function ReportsScreen() {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
-  }, [selectedReport]);
+  }, [selectedReport, isExitingReport]);
 
   const handleReportPress = (reportType: string) => {
     setSelectedReport(reportType);
+    
+    // Reset report screen animation values
+    reportTranslateX.setValue(screenWidth);
+    
+    // Animate out the main screen and slide in the report screen
+    Animated.parallel([
+      // Main screen animations
+      Animated.timing(translateX, {
+        toValue: -screenWidth,
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      // Report screen slide-in animation
+      Animated.timing(reportTranslateX, {
+        toValue: 0,
+        duration: 300,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const handleBack = () => {
-    setSelectedReport(null);
+    if (isExitingReport) return;
+    setIsExitingReport(true);
+
+    // Fallback timeout to ensure unmount even if animation callback doesn't fire
+    const fallback = setTimeout(() => {
+      setSelectedReport(null);
+      setIsExitingReport(false);
+      // Reset animated values for next open
+      reportTranslateX.setValue(screenWidth);
+      translateX.setValue(0);
+    }, 600);
+
+    // Animate out the report screen and back to main screen
+    Animated.parallel([
+      // Report screen slide-out animation
+      Animated.timing(reportTranslateX, {
+        toValue: screenWidth,
+        duration: 250,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      // Main screen animations
+      Animated.timing(translateX, {
+        toValue: 0,
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      clearTimeout(fallback);
+      setSelectedReport(null);
+      setIsExitingReport(false);
+      // Reset animated values for next open
+      reportTranslateX.setValue(screenWidth);
+      translateX.setValue(0);
+    });
   };
 
   const handleExitConfirm = () => {
@@ -63,26 +131,45 @@ export default function ReportsScreen() {
     setShowExitPopup(false);
   };
 
-  // Render individual report screens
-  if (selectedReport === 'Device Analytics') {
-    return <DeviceAnalyticsScreen onBack={handleBack} />;
-  }
-  
-  if (selectedReport === 'Location Reports') {
-    return <LocationReportsScreen onBack={handleBack} />;
-  }
-  
-  if (selectedReport === 'Battery Reports') {
-    return <BatteryReportsScreen onBack={handleBack} />;
-  }
-  
-  if (selectedReport === 'Performance Metrics') {
-    return <PerformanceMetricsScreen onBack={handleBack} />;
-  }
+  // Render individual report screens with animations
+  const renderReportScreen = () => {
+    if (selectedReport === 'Device Analytics') {
+      return <DeviceAnalyticsScreen onBack={handleBack} />;
+    }
+    
+    if (selectedReport === 'Location Reports') {
+      return <LocationReportsScreen onBack={handleBack} />;
+    }
+    
+    if (selectedReport === 'Battery Reports') {
+      return <BatteryReportsScreen onBack={handleBack} />;
+    }
+    
+    if (selectedReport === 'Performance Metrics') {
+      return <PerformanceMetricsScreen onBack={handleBack} />;
+    }
+    
+    return null;
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView style={[styles.content, { paddingBottom: 140 }]} showsVerticalScrollIndicator={false}>
+      {/* Animated Main Content */}
+      <Animated.View 
+        style={[
+          styles.animatedContainer,
+          {
+            transform: [
+              { translateX }
+            ],
+          }
+        ]}
+      >
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>{t('reports')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -101,7 +188,7 @@ export default function ReportsScreen() {
             }
           ]}
           onPress={() => handleReportPress('Device Analytics')}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
         >
           <View style={styles.cardHeader}>
             <View style={styles.cardTitleContainer}>
@@ -132,7 +219,7 @@ export default function ReportsScreen() {
             }
           ]}
           onPress={() => handleReportPress('Location Reports')}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
         >
           <View style={styles.cardHeader}>
             <View style={styles.cardTitleContainer}>
@@ -163,7 +250,7 @@ export default function ReportsScreen() {
             }
           ]}
           onPress={() => handleReportPress('Battery Reports')}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
         >
           <View style={styles.cardHeader}>
             <View style={styles.cardTitleContainer}>
@@ -195,7 +282,7 @@ export default function ReportsScreen() {
             }
           ]}
           onPress={() => handleReportPress('Performance Metrics')}
-          activeOpacity={0.7}
+          activeOpacity={0.8}
         >
           <View style={styles.cardHeader}>
             <View style={styles.cardTitleContainer}>
@@ -214,7 +301,23 @@ export default function ReportsScreen() {
             <Text style={[styles.featureItem, { color: colors.textSecondary }]}>• Optimization suggestions</Text>
           </View>
         </TouchableOpacity>
-      </ScrollView>
+        </ScrollView>
+      </Animated.View>
+
+      {/* Report Screen Overlay */}
+      {selectedReport && (
+        <Animated.View 
+          style={[
+            styles.reportOverlay,
+            {
+              transform: [{ translateX: reportTranslateX }],
+            }
+          ]}
+          pointerEvents={isExitingReport ? 'none' : 'auto'}
+        >
+          {renderReportScreen()}
+        </Animated.View>
+      )}
 
       {/* Exit Confirmation Popup */}
       <ExitConfirmationPopup
@@ -231,9 +334,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  animatedContainer: {
+    flex: 1,
+  },
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Prevent bottom navigator overlap
+  },
+  reportOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
   },
   header: {
     marginBottom: 30,
@@ -259,7 +376,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   lastCard: {
-    marginBottom: 60,
+    marginBottom: 20,
   },
   cardHeader: {
     flexDirection: 'row',

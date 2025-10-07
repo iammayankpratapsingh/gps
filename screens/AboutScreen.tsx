@@ -96,7 +96,11 @@ export default function AboutScreen({ onBack }: AboutScreenProps) {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.section}>
           <View style={[styles.appInfoCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <Text style={styles.appIcon}>📱</Text>
@@ -231,7 +235,7 @@ export default function AboutScreen({ onBack }: AboutScreenProps) {
 
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: colors.textSecondary }]}>
-            © 2024 GPS Tracker. All rights reserved.
+            © {new Date().getFullYear()} GPS Tracker. All rights reserved.
           </Text>
         </View>
       </ScrollView>
@@ -270,6 +274,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Add bottom padding to prevent bottom navigation overlap
   },
   section: {
     marginBottom: 24,

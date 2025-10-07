@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, RefreshControl, Alert, AppState } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, RefreshControl, Alert, AppState, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import { ThemeColors } from '../services/themeService';
@@ -15,9 +15,23 @@ interface TraccarDeviceListProps {
     deviceId: string;
   }>;
   onAddDevice?: () => void;
+  onDevicePress?: (device: any) => void;
+  selectedDeviceForAnimation?: any;
+  deviceScale?: Animated.Value;
+  deviceOpacity?: Animated.Value;
+  isDeviceAnimating?: boolean;
 }
 
-export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, addedDevices = [], onAddDevice }) => {
+export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ 
+  colors, 
+  addedDevices = [], 
+  onAddDevice,
+  onDevicePress,
+  selectedDeviceForAnimation,
+  deviceScale,
+  deviceOpacity,
+  isDeviceAnimating
+}) => {
   const { t } = useTranslation('common');
   const { 
     devices, 
@@ -200,8 +214,10 @@ export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, ad
               const latitude = position?.latitude || 'N/A';
               const longitude = position?.longitude || 'N/A';
               
+              const isSelectedForAnimation = selectedDeviceForAnimation?.id === device.id;
+              
               return (
-                <View 
+                <Animated.View 
                   key={device.id} 
                   style={[
                     styles.deviceCard, 
@@ -209,9 +225,17 @@ export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, ad
                       backgroundColor: colors.surface, 
                       borderColor: selectedDeviceId === device.id.toString() ? colors.primary : colors.border,
                       borderWidth: selectedDeviceId === device.id.toString() ? 2 : 1,
+                      transform: isSelectedForAnimation && deviceScale ? [{ scale: deviceScale }] : [{ scale: 1 }],
+                      opacity: isSelectedForAnimation && deviceOpacity ? deviceOpacity : 1,
                     }
                   ]}
                 >
+                  <TouchableOpacity
+                    style={styles.deviceCardTouchable}
+                    onPress={() => onDevicePress?.(device)}
+                    activeOpacity={0.8}
+                    disabled={isDeviceAnimating}
+                  >
                   <View style={styles.deviceHeader}>
                     <View style={styles.deviceNameContainer}>
                       <View>
@@ -281,7 +305,8 @@ export const TraccarDeviceList: React.FC<TraccarDeviceListProps> = ({ colors, ad
                       <Text style={styles.actionButtonText}>{t('playback')}</Text>
                     </TouchableOpacity>
                   </View>
-                </View>
+                  </TouchableOpacity>
+                </Animated.View>
               );
             })}
           </View>
@@ -369,6 +394,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
     borderWidth: 1,
+  },
+  deviceCardTouchable: {
+    flex: 1,
   },
   deviceHeader: {
     flexDirection: 'row',

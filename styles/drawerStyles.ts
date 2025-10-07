@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     left: 0,
     top: 0, // SafeAreaView will handle the status bar offset
     bottom: 0,
-    width: width * 0.8,
+    width: width * 0.7,
     borderTopRightRadius: 24, // Increased for premium look
     borderBottomRightRadius: 24, // Increased for premium look
     shadowColor: '#000',
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3, // Enhanced shadow
     shadowRadius: 8, // Enhanced shadow
     elevation: 8, // Enhanced shadow for Android
-    zIndex: 10003, // Higher than header to ensure drawer is visible
+    zIndex: 999, // Below screen overlays (1000-1001) to prevent flicker
     borderRightWidth: 0, // Remove border for cleaner look
     overflow: 'hidden', // Ensure border radius is properly applied
   },
@@ -161,6 +161,6 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 10002, // Higher than header to ensure overlay works
+    zIndex: 998, // Below drawer but above main content
   },
 });

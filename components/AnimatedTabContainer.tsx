@@ -22,11 +22,13 @@ export const AnimatedTabContainer: React.FC<AnimatedTabContainerProps> = ({
 }) => {
   const translateX = useRef(new Animated.Value(0)).current;
   const opacity = useRef(new Animated.Value(0)).current;
+  const didAnimateRef = useRef(false);
 
   useEffect(() => {
+    // Only animate when a real tab transition occurs: from inactive -> active or exiting -> inactive
     if (isActive && !isExiting) {
       if (animationsEnabled) {
-        // Slide in animation
+        // Slide in animation - Faster speeds
         const startPosition = enterDirection === 'left' ? -screenWidth : screenWidth;
         translateX.setValue(startPosition);
         opacity.setValue(0);
@@ -34,56 +36,44 @@ export const AnimatedTabContainer: React.FC<AnimatedTabContainerProps> = ({
         Animated.parallel([
           Animated.timing(translateX, {
             toValue: 0,
-<<<<<<< HEAD
-            duration: 200,
+            duration: 150, // Reduced from 200ms
             easing: Easing.out(Easing.cubic),
-=======
-            duration: 300,
->>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
             useNativeDriver: true,
           }),
           Animated.timing(opacity, {
             toValue: 1,
-<<<<<<< HEAD
-            duration: 200,
+            duration: 150, // Reduced from 200ms
             easing: Easing.out(Easing.cubic),
-=======
-            duration: 300,
->>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
             useNativeDriver: true,
           }),
-        ]).start();
+        ]).start(() => {
+          didAnimateRef.current = true;
+        });
       } else {
         // No animation - set final position immediately
         translateX.setValue(0);
         opacity.setValue(1);
       }
     } else if (isExiting && animationsEnabled) {
-      // Slide out animation
+      // Slide out animation - Faster speeds
       const endPosition = exitDirection === 'left' ? -screenWidth : screenWidth;
       
       Animated.parallel([
         Animated.timing(translateX, {
           toValue: endPosition,
-<<<<<<< HEAD
-          duration: 150,
+          duration: 120, // Reduced from 150ms
           easing: Easing.in(Easing.cubic),
-=======
-          duration: 300,
->>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
           useNativeDriver: true,
         }),
         Animated.timing(opacity, {
           toValue: 0,
-<<<<<<< HEAD
-          duration: 150,
+          duration: 120, // Reduced from 150ms
           easing: Easing.in(Easing.cubic),
-=======
-          duration: 300,
->>>>>>> 5f3d0c0d3ce34557c29546742fe99315b29a1610
           useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => {
+        didAnimateRef.current = true;
+      });
     }
   }, [isActive, isExiting, enterDirection, exitDirection, animationsEnabled, translateX, opacity]);
 

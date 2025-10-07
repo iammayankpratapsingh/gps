@@ -87,6 +87,9 @@ export default function ThemeManagementScreen({ onBack, currentTheme }: ThemeMan
       flex: 1,
       padding: 20,
     },
+    scrollContent: {
+      paddingBottom: 100, // Add bottom padding to prevent bottom navigation overlap
+    },
     sectionTitle: {
       fontSize: 20,
       fontWeight: 'bold',
@@ -230,7 +233,11 @@ export default function ThemeManagementScreen({ onBack, currentTheme }: ThemeMan
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView style={styles.content}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.sectionTitle}>Choose Your Theme</Text>
         
         {themeOptions.map((theme) => (

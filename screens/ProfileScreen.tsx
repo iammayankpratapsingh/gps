@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   Modal
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import authService, { UserData } from '../services/authService';
 import themeService, { ThemeColors } from '../services/themeService';
@@ -27,6 +28,7 @@ interface ProfileScreenProps {
 }
 
 export default function ProfileScreen({ userData, onBack, onUpdateProfile }: ProfileScreenProps) {
+  const { t } = useTranslation('common');
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(userData.profileImageUrl || null);
@@ -388,7 +390,7 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
               onChangeText={(text) => setEditedData(prev => ({ ...prev, phoneNumber: text }))}
               editable={isEditing}
               keyboardType="phone-pad"
-              placeholder={userData.phoneNumber ? undefined : "Enter phone number"}
+              placeholder={userData.phoneNumber ? undefined : t('enterPhoneNumber')}
               placeholderTextColor={colors.textSecondary}
             />
           </View>
@@ -405,7 +407,7 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
                   color: colors.textSecondary
                 }
               ]}
-              value="End User"
+              value={t('endUser')}
               editable={false}
               placeholderTextColor={colors.textSecondary}
             />
@@ -457,7 +459,7 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
                   color: colors.text
                 }
               ]}
-              placeholder="Current Password"
+              placeholder={t('currentPassword')}
               placeholderTextColor={colors.textSecondary}
               value={currentPassword}
               onChangeText={setCurrentPassword}
@@ -473,7 +475,7 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
                   color: colors.text
                 }
               ]}
-              placeholder="New Password"
+              placeholder={t('newPassword')}
               placeholderTextColor={colors.textSecondary}
               value={newPassword}
               onChangeText={setNewPassword}
@@ -489,7 +491,7 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
                   color: colors.text
                 }
               ]}
-              placeholder="Confirm New Password"
+              placeholder={t('confirmNewPassword')}
               placeholderTextColor={colors.textSecondary}
               value={confirmPassword}
               onChangeText={setConfirmPassword}

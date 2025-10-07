@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, BackHandler } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, BackHandler, Animated, Dimensions, Easing } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
-import themeService, { ThemeColors } from '../services/themeService';
+import themeService, { ThemeColors, Theme } from '../services/themeService';
 import { useStatusBar } from '../hooks/useStatusBar';
-import NotificationsScreen from './NotificationsScreen';
+import ManageNotificationScreen from './ManageNotificationScreen';
 import PrivacySecurityScreen from './PrivacySecurityScreen';
 import BackupSyncScreen from './BackupSyncScreen';
 import LanguageScreen from './LanguageScreen';
 import AboutScreen from './AboutScreen';
+import ThemeManagementScreen from './ThemeManagementScreen';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import ExitConfirmationPopup from '../components/ExitConfirmationPopup';
 
@@ -22,6 +23,11 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
   const [colors, setColors] = React.useState<ThemeColors>(themeService.getColors());
   const [selectedScreen, setSelectedScreen] = useState<string | null>(null);
   const [showExitPopup, setShowExitPopup] = useState(false);
+  const { width: screenWidth } = Dimensions.get('window');
+  
+  // Slide-only animation values
+  const mainTranslateX = useRef(new Animated.Value(0)).current;
+  const overlayTranslateX = useRef(new Animated.Value(screenWidth)).current;
   
   // Professional status bar that matches header color
   useStatusBar({ colors, animated: true });
@@ -38,7 +44,7 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
     const backAction = () => {
       // If user is on a deep screen (not main settings screen), handle normal back navigation
       if (selectedScreen) {
-        setSelectedScreen(null);
+        handleBack();
         return true; // Prevent default back behavior
       }
       
@@ -52,7 +58,26 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
   }, [selectedScreen]);
 
   const handleBack = () => {
-    setSelectedScreen(null);
+    if (!selectedScreen) return;
+    // Slide overlay out and main back in
+    Animated.parallel([
+      Animated.timing(overlayTranslateX, {
+        toValue: screenWidth,
+        duration: 250,
+        easing: Easing.in(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(mainTranslateX, {
+        toValue: 0,
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setSelectedScreen(null);
+      overlayTranslateX.setValue(screenWidth);
+      mainTranslateX.setValue(0);
+    });
   };
 
   const handleExitConfirm = () => {
@@ -65,37 +90,107 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
   };
 
   const settingsItems = [
-    { id: 'theme', title: t('theme'), icon: 'palette', action: onNavigateToTheme },
-    { id: 'notifications', title: t('notifications'), icon: 'notifications', action: () => setSelectedScreen('notifications') },
-    { id: 'privacy', title: t('privacy'), icon: 'security', action: () => setSelectedScreen('privacy') },
-    { id: 'backup', title: t('backupSync'), icon: 'cloud-upload', action: () => setSelectedScreen('backup') },
-    { id: 'about', title: t('about'), icon: 'info', action: () => setSelectedScreen('about') },
+    { id: 'theme', title: t('theme'), icon: 'palette', action: () => {
+      setSelectedScreen('theme');
+      overlayTranslateX.setValue(screenWidth);
+      Animated.parallel([
+        Animated.timing(mainTranslateX, {
+          toValue: -screenWidth,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayTranslateX, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        })
+      ]).start();
+    } },
+    { id: 'manageNotifications', title: t('manageNotification'), icon: 'settings', action: () => {
+      setSelectedScreen('manageNotifications');
+      overlayTranslateX.setValue(screenWidth);
+      Animated.parallel([
+        Animated.timing(mainTranslateX, {
+          toValue: -screenWidth,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayTranslateX, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        })
+      ]).start();
+    } },
+    { id: 'privacy', title: t('privacy'), icon: 'security', action: () => {
+      setSelectedScreen('privacy');
+      overlayTranslateX.setValue(screenWidth);
+      Animated.parallel([
+        Animated.timing(mainTranslateX, {
+          toValue: -screenWidth,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayTranslateX, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        })
+      ]).start();
+    } },
+    { id: 'backup', title: t('backupSync'), icon: 'cloud-upload', action: () => {
+      setSelectedScreen('backup');
+      overlayTranslateX.setValue(screenWidth);
+      Animated.parallel([
+        Animated.timing(mainTranslateX, {
+          toValue: -screenWidth,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayTranslateX, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        })
+      ]).start();
+    } },
+    { id: 'about', title: t('about'), icon: 'info', action: () => {
+      setSelectedScreen('about');
+      overlayTranslateX.setValue(screenWidth);
+      Animated.parallel([
+        Animated.timing(mainTranslateX, {
+          toValue: -screenWidth,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayTranslateX, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        })
+      ]).start();
+    } },
   ];
-
-  // Render individual settings screens
-  if (selectedScreen === 'notifications') {
-    return <NotificationsScreen colors={colors} onBack={handleBack} />;
-  }
-  
-  if (selectedScreen === 'privacy') {
-    return <PrivacySecurityScreen onBack={handleBack} />;
-  }
-  
-  if (selectedScreen === 'backup') {
-    return <BackupSyncScreen onBack={handleBack} />;
-  }
-  
-  if (selectedScreen === 'language') {
-    return <LanguageScreen onBack={handleBack} />;
-  }
-  
-  if (selectedScreen === 'about') {
-    return <AboutScreen onBack={handleBack} />;
-  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
-      <ScrollView style={[styles.content, { paddingBottom: 80 }]} showsVerticalScrollIndicator={false}>
+      {/* Main content with slide-out */}
+      <Animated.View style={{ flex: 1, transform: [{ translateX: mainTranslateX }] }}>
+        <ScrollView 
+          style={styles.content} 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>{t('settings')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -120,7 +215,32 @@ export default function SettingsScreen({ onNavigateToTheme }: SettingsScreenProp
             <Icon name="chevron-right" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         ))}
-      </ScrollView>
+        </ScrollView>
+      </Animated.View>
+
+      {/* Overlay for selected settings screen with slide-in */}
+      {selectedScreen && (
+        <Animated.View style={[styles.overlay, { transform: [{ translateX: overlayTranslateX }] }]}> 
+          {selectedScreen === 'theme' && (
+            <ThemeManagementScreen onBack={handleBack} currentTheme={themeService.getCurrentTheme() as Theme} />
+          )}
+          {selectedScreen === 'manageNotifications' && (
+            <ManageNotificationScreen colors={colors} onBack={handleBack} />
+          )}
+          {selectedScreen === 'privacy' && (
+            <PrivacySecurityScreen onBack={handleBack} />
+          )}
+          {selectedScreen === 'backup' && (
+            <BackupSyncScreen onBack={handleBack} />
+          )}
+          {selectedScreen === 'language' && (
+            <LanguageScreen onBack={handleBack} />
+          )}
+          {selectedScreen === 'about' && (
+            <AboutScreen onBack={handleBack} />
+          )}
+        </Animated.View>
+      )}
 
       {/* Exit Confirmation Popup */}
       <ExitConfirmationPopup
@@ -137,9 +257,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+  },
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Add bottom padding to prevent bottom navigation overlap
   },
   header: {
     marginBottom: 30,

@@ -6,10 +6,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Import translation files
 import enCommon from '../locales/en/common.json';
 import enDevices from '../locales/en/devices.json';
-import esCommon from '../locales/es/common.json';
-import esDevices from '../locales/es/devices.json';
-import hiCommon from '../locales/hi/common.json';
-import hiDevices from '../locales/hi/devices.json';
 import frCommon from '../locales/fr/common.json';
 import frDevices from '../locales/fr/devices.json';
 
@@ -28,7 +24,7 @@ const LANGUAGE_DETECTOR = {
 
       // Fallback to device language
       const deviceLanguage = RNLocalize.getLocales()[0]?.languageCode || 'en';
-      const supportedLanguages = ['en', 'es', 'hi', 'fr'];
+      const supportedLanguages = ['en', 'fr'];
       const language = supportedLanguages.includes(deviceLanguage) ? deviceLanguage : 'en';
       
       callback(language);
@@ -52,14 +48,6 @@ const resources = {
   en: {
     common: enCommon,
     devices: enDevices,
-  },
-  es: {
-    common: esCommon,
-    devices: esDevices,
-  },
-  hi: {
-    common: hiCommon,
-    devices: hiDevices,
   },
   fr: {
     common: frCommon,
@@ -104,8 +92,6 @@ export const getCurrentLanguage = () => {
 export const getSupportedLanguages = () => {
   return [
     { code: 'en', name: 'English', nativeName: 'English' },
-    { code: 'es', name: 'Spanish', nativeName: 'Español' },
-    { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
     { code: 'fr', name: 'French', nativeName: 'Français' },
   ];
 };

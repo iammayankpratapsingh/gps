@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,9 +21,10 @@ const { width, height } = Dimensions.get('window');
 
 interface AuthScreenProps {
   onLogin: (userData: UserData) => void;
+  onAdminLogin?: (adminUser: any) => void;
 }
 
-export default function AuthScreen({ onLogin }: AuthScreenProps) {
+export default function AuthScreen({ onLogin, onAdminLogin }: AuthScreenProps) {
   const { t } = useTranslation('common');
   
   // Professional status bar for auth screen
@@ -64,6 +65,11 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // Email validation helper
+  const isEmailValid = (email: string): boolean => {
+    return email.trim() !== '' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
 
   const validateForm = (): boolean => {
     const newErrors: {[key: string]: string} = {};
@@ -109,20 +115,62 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
     setErrors({});
 
     try {
+      // Normal user authentication
       let result;
       if (isLogin) {
+        // Check for admin credentials and redirect to admin panel (only during login)
+        if (email === 'superadmin@gmail.com' && password === 'super@dmin') {
+          console.log('🔐 Admin credentials detected, redirecting to admin panel');
+          
+          // Import admin auth service and sign in as admin
+          const adminAuthService = (await import('../admin/services/adminAuthService')).default;
+          const adminResult = await adminAuthService.signInAsSuperAdmin(email, password);
+          
+          if (adminResult.success && adminResult.user && onAdminLogin) {
+            console.log('✅ Admin login successful, calling onAdminLogin:', adminResult.user.email);
+            
+            // Clear any normal user sessions immediately
+            try {
+              const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+              await AsyncStorage.removeItem('user_session');
+              console.log('🧹 Cleared normal user session for admin login');
+            } catch (error) {
+              console.log('ℹ️ No normal user session to clear');
+            }
+            
+            onAdminLogin(adminResult.user);
+            return;
+          } else {
+            console.log('❌ Admin login failed:', adminResult.error);
+            setErrors({ general: adminResult.error || 'Admin login failed' });
+            return;
+          }
+        }
         result = await authService.signInUser(email, password);
-      } else {
-        result = await authService.registerUser(fullName, email, phoneNumber, password);
-      }
-
-      if (result.success && result.user) {
-        onLogin(result.user);
-      } else {
-        if (result.error?.message?.includes('password') || result.error?.message?.includes('credential')) {
-          setErrors({ password: 'Wrong password. Please try again.' });
+        
+        if (result.success && result.user) {
+          onLogin(result.user);
         } else {
-          setErrors({ general: result.error?.message || 'Authentication failed. Please try again.' });
+          if (result.error?.message?.includes('password') || result.error?.message?.includes('credential')) {
+            setErrors({ password: 'Wrong password. Please try again.' });
+          } else {
+            setErrors({ general: result.error?.message || 'Authentication failed. Please try again.' });
+          }
+        }
+      } else {
+        // For signup, create the account directly
+        result = await authService.registerUser(fullName, email, phoneNumber, password);
+        
+        if (result.success && result.user) {
+          onLogin(result.user);
+        } else {
+          // Check if the error is due to email already in use
+          if (result.error?.message?.includes('already registered') || 
+              result.error?.message?.includes('email-already-in-use')) {
+            setErrors({ email: 'An account with this email already exists. Please sign in instead.' });
+          } else {
+            setErrors({ general: result.error?.message || 'Account creation failed. Please try again.' });
+          }
         }
       }
     } catch (error) {
@@ -143,6 +191,45 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
       
       if (result.success && result.user) {
         console.log('Google Sign-In successful, calling onLogin');
+        // Check if Google user is admin and redirect to admin panel
+        if (result.user.email === 'superadmin@gmail.com' && onAdminLogin) {
+          console.log('Admin Google user detected, redirecting to admin panel');
+          
+          // Import admin auth service and create admin user
+          const adminAuthService = (await import('../admin/services/adminAuthService')).default;
+          
+          // Create admin user data for Google sign-in
+          const adminUser = {
+            uid: result.user.uid,
+            email: result.user.email,
+            displayName: 'Super Admin',
+            role: 'superadmin',
+            isActive: true,
+            createdAt: new Date(),
+            lastLoginAt: new Date(),
+            profileImageUrl: result.user.profileImageUrl,
+            customClaims: {
+              role: 'superadmin',
+              isAdmin: true,
+              isSuperAdmin: true
+            }
+          };
+          
+          // Save admin session
+          await adminAuthService.saveAdminSession(adminUser);
+          
+          // Clear any normal user sessions immediately
+          try {
+            const AsyncStorage = (await import('@react-native-async-storage/async-storage')).default;
+            await AsyncStorage.removeItem('user_session');
+            console.log('🧹 Cleared normal user session for admin Google login');
+          } catch (error) {
+            console.log('ℹ️ No normal user session to clear');
+          }
+          
+          onAdminLogin(adminUser);
+          return;
+        }
         onLogin(result.user);
       } else {
         console.log('Google Sign-In failed:', result.error?.message);
@@ -155,6 +242,11 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
       setIsGoogleLoading(false);
     }
   };
+
+
+
+
+
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
@@ -171,6 +263,12 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
     setRememberMe(false);
   };
 
+
+
+
+
+
+
   const clearError = (field: string) => {
     if (errors[field]) {
       setErrors(prev => {
@@ -180,6 +278,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
       });
     }
   };
+
 
   return (
     <View style={styles.container}>
@@ -295,21 +394,22 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
 
             {/* Email */}
             <View style={styles.inputContainer}>
-              <TextInput
+                <TextInput
                 style={[styles.input, errors.email && styles.inputError]}
-                placeholder={t('email')}
-                placeholderTextColor="#999999"
-                value={email}
-                onChangeText={(text) => {
-                  setEmail(text);
-                  clearError('email');
-                }}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
+                  placeholder={t('email')}
+                  placeholderTextColor="#999999"
+                  value={email}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    clearError('email');
+                  }}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
               {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
             </View>
+
 
             {/* Phone Number (Signup only) */}
             {!isLogin && (
@@ -417,7 +517,10 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
 
             {/* Submit Button */}
             <TouchableOpacity 
-              style={[styles.submitButton, isLoading && styles.submitButtonDisabled]} 
+              style={[
+                styles.submitButton, 
+                isLoading && styles.submitButtonDisabled
+              ]} 
               onPress={handleAuth}
               disabled={isLoading}
             >
@@ -442,6 +545,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
     </View>
   );
 }
@@ -777,6 +881,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: '#ffffff',
     color: '#333333',
+  },
+  emailInputContainer: {
+    position: 'relative',
+  },
+  emailInput: {
+    borderWidth: 1,
+    borderColor: '#e1e5e9',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingRight: 80, // Make space for verify text
+    fontSize: 16,
+    backgroundColor: '#ffffff',
+    color: '#333333',
+  },
+  verifyTextContainer: {
+    position: 'absolute',
+    right: 16,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  verifyText: {
+    color: '#0097b2',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  verifyTextDisabled: {
+    color: '#999999',
   },
   passwordContainer: {
     flexDirection: 'row',

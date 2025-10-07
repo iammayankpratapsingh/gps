@@ -10,6 +10,7 @@ interface AppHeaderProps {
   onMenuPress: () => void;
   onAddDevicePress: () => void;
   onSearchPress: () => void;
+  onNotificationPress: () => void;
   notificationCount?: number;
 }
 
@@ -18,6 +19,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onMenuPress,
   onAddDevicePress,
   onSearchPress,
+  onNotificationPress,
   notificationCount = 0,
 }) => {
   const { t } = useTranslation('common');
@@ -27,7 +29,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       edges={['top']}
       style={{
         backgroundColor: colors.header,
-        zIndex: 10000,
+        zIndex: 500,
       }}
     >
       <View style={[styles.header, { backgroundColor: colors.header, zIndex: 10000 }]}>
@@ -60,10 +62,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             {/* Notification Bell with Badge */}
             <TouchableOpacity 
               style={styles.iconButton}
-              onPress={() => {
-                // TODO: Add notification press handler
-                console.log('Notification pressed');
-              }}
+              onPress={onNotificationPress}
             >
               <Icon name="notifications" size={22} color={colors.text} />
               {notificationCount > 0 && (

@@ -1,10 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Animated, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Animated, Image, StyleSheet, Dimensions } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { MenuItem } from '../constants/menuItems';
 import { styles } from '../styles/drawerStyles';
+import LanguageToggle from './LanguageToggle';
+
+const { width } = Dimensions.get('window');
 
 interface AppDrawerProps {
   colors: any;
@@ -14,7 +17,7 @@ interface AppDrawerProps {
   menuItems: MenuItem[];
   onToggleDrawer: () => void;
   onProfilePress: () => void;
-  onLogout: () => void;
+  onLanguageChange?: (languageCode: string) => void;
 }
 
 export const AppDrawer: React.FC<AppDrawerProps> = ({
@@ -25,9 +28,10 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
   menuItems,
   onToggleDrawer,
   onProfilePress,
-  onLogout,
+  onLanguageChange,
 }) => {
   const { t } = useTranslation('common');
+
   return (
     <>
       <Animated.View style={[styles.drawer, { 
@@ -58,6 +62,12 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
             </View>
           </View>
 
+          {/* Language Toggle Button */}
+          <LanguageToggle 
+            colors={colors} 
+            onLanguageChange={onLanguageChange}
+          />
+
         <ScrollView style={styles.menuContainer}>
           {menuItems.map((item) => (
             <TouchableOpacity 
@@ -73,18 +83,6 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
           ))}
         </ScrollView>
         
-        {/* Logout Button */}
-        <View style={[styles.logoutContainer, { 
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border
-        }]}>
-          <TouchableOpacity style={[styles.logoutButton, { 
-            backgroundColor: colors.error,
-            shadowColor: colors.error
-          }]} onPress={onLogout}>
-            <Text style={styles.logoutButtonText}>{t('logout')}</Text>
-          </TouchableOpacity>
-        </View>
 
         <View style={[styles.drawerFooter, { backgroundColor: colors.surface }]}>
           <Text style={[styles.versionText, { color: colors.textSecondary }]}>{t('version')} 1.0.0</Text>
@@ -93,13 +91,26 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
       </Animated.View>
 
       {/* Overlay */}
-      {isDrawerOpen && (
+      <Animated.View
+        style={[
+          styles.overlay,
+          {
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            opacity: drawerAnimation.interpolate({
+              inputRange: [-width * 0.8, 0],
+              outputRange: [0, 1],
+              extrapolate: 'clamp',
+            }),
+          },
+        ]}
+        pointerEvents={isDrawerOpen ? 'auto' : 'none'}
+      >
         <TouchableOpacity 
-          style={[styles.overlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}
+          style={StyleSheet.absoluteFillObject}
           onPress={onToggleDrawer}
           activeOpacity={1}
         />
-      )}
+      </Animated.View>
     </>
   );
 };

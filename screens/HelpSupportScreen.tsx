@@ -199,7 +199,11 @@ export default function HelpSupportScreen({ onBack }: HelpSupportScreenProps) {
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>🔍 Quick Help</Text>
           <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
@@ -328,6 +332,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Add bottom padding to prevent bottom navigation overlap
   },
   section: {
     marginBottom: 24,

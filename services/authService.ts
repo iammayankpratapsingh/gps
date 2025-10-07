@@ -545,21 +545,28 @@ class AuthService {
   // Sign out user
   async signOutUser(): Promise<void> {
     try {
+      console.log('Starting signOutUser process...');
+      
       // Clear session data
       await this.clearSession();
+      console.log('Session cleared successfully');
       
       // Sign out from Firebase
       await signOut(auth);
+      console.log('Firebase signOut completed');
       
       // Also sign out from Google to allow account switching
       try {
         await GoogleSignin.signOut();
         console.log('Signed out from Google account');
       } catch (googleSignOutError) {
-        console.log('No Google account to sign out from');
+        console.log('No Google account to sign out from or Google signOut failed:', googleSignOutError);
       }
+      
+      console.log('signOutUser completed successfully');
     } catch (error) {
       console.error('Sign out error:', error);
+      throw error; // Re-throw to let the caller handle it
     }
   }
 
