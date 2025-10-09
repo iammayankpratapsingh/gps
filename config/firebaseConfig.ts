@@ -4,15 +4,15 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getDatabase } from 'firebase/database';
 
-// Your Firebase configuration
+// Your Firebase configuration - Updated from google-services.json
 const firebaseConfig = {
-  apiKey: "AIzaSyDAIfyfoXHJ0spU1DWqXTfRn0uTYnBdZGk",
-  authDomain: "my-gps-app-45f1e.firebaseapp.com",
-  projectId: "my-gps-app-45f1e",
-  storageBucket: "my-gps-app-45f1e.firebasestorage.app",
-  messagingSenderId: "827483476565",
-  appId: "1:827483476565:android:8e5df4160b2e867913fadc",
-  databaseURL: "https://my-gps-app-45f1e-default-rtdb.firebaseio.com"
+  apiKey: "AIzaSyBmSJrw8bhtg4cUQc5GOdfx3SXP6zDFL78",
+  authDomain: "track-3b833.firebaseapp.com",
+  projectId: "track-3b833",
+  storageBucket: "track-3b833.firebasestorage.app",
+  messagingSenderId: "873684952295",
+  appId: "1:873684952295:android:94851e69788709635eae42",
+  databaseURL: "https://track-3b833-default-rtdb.firebaseio.com"
 };
 
 // Initialize Firebase (prevent multiple initializations)

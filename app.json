@@ -16,12 +16,12 @@
         "backgroundColor": "#0097b2"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.mygpsapp",
+      "package": "com.slimiot.gpstracker",
       "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "android.permission.INTERNET",
         "android.permission.ACCESS_NETWORK_STATE"
-      ],
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

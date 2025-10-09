@@ -33,7 +33,6 @@ import {
 import { auth, db, storage, realtimeDb } from '../config/firebaseConfig';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import cloudinaryService from './cloudinaryService';
 import { ref, set, get, remove, update } from 'firebase/database';
 
 export interface UserData {
@@ -42,7 +41,6 @@ export interface UserData {
   email: string;
   phoneNumber: string;
   profileImageUrl?: string;
-  cloudinaryPublicId?: string;
   loginId: string;
   isEmailVerified: boolean;
   createdAt: any;
@@ -69,7 +67,7 @@ class AuthService {
   constructor() {
     // Configure Google Sign-In
     GoogleSignin.configure({
-      webClientId: '827483476565-ub7ll4sleg4uqn8qrfhcvc472kl06ain.apps.googleusercontent.com',
+      webClientId: '873684952295-6qcmoevgnd9ts0u4rvc458mf7tg5fk3v.apps.googleusercontent.com',
       offlineAccess: true,
       hostedDomain: '',
       forceCodeForRefreshToken: true,
@@ -379,10 +377,7 @@ class AuthService {
   async updateUserProfile(uid: string, updates: Partial<UserData>): Promise<{ success: boolean; error?: AuthError }> {
     try {
       // Update in Realtime Database
-      await this.saveUserToRealtimeDB(uid, {
-        ...updates,
-        updatedAt: new Date().toISOString()
-      });
+      await this.saveUserToRealtimeDB(uid, updates);
       
       // Also update session data if it exists
       const session = await this.loadSession();
@@ -404,100 +399,83 @@ class AuthService {
     }
   }
 
-  // Upload profile image to Cloudinary with Firebase Storage fallback
+
+  // Upload profile image to Firebase Storage
   async uploadProfileImage(uid: string, imageUri: string): Promise<{ success: boolean; url?: string; error?: AuthError }> {
     try {
       console.log('Starting image upload for user:', uid);
       
       // First, delete existing profile image if any
       const userData = await this.getUserData(uid);
-      if (userData?.cloudinaryPublicId) {
+      if (userData?.profileImageUrl) {
         await this.deleteProfileImage(uid);
       }
 
-      // Try Cloudinary first
-      console.log('🔄 Attempting Cloudinary upload...');
-      const uploadResult = await cloudinaryService.uploadImage(imageUri, 'gps-tracker/profiles', uid);
+      // Upload to Firebase Storage
+      console.log('📤 Uploading to Firebase Storage...');
       
-      if (uploadResult.success && uploadResult.url && uploadResult.publicId) {
-        console.log('✅ Cloudinary upload successful:', uploadResult.url);
-        
-        // Save to Firebase Realtime Database
-        await this.saveUserToRealtimeDB(uid, {
-          profileImageUrl: uploadResult.url,
-          cloudinaryPublicId: uploadResult.publicId
+      // Handle local file URIs properly
+      let blob: Blob;
+      if (imageUri.startsWith('file://') || imageUri.startsWith('content://')) {
+        // For local files, use XMLHttpRequest
+        blob = await new Promise<Blob>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.onload = () => resolve(xhr.response as Blob);
+          xhr.onerror = () => reject(new Error('Failed to load file'));
+          xhr.responseType = 'blob';
+          xhr.open('GET', imageUri);
+          xhr.send();
         });
-        
-        return { success: true, url: uploadResult.url };
       } else {
-        console.log('❌ Cloudinary upload failed:', uploadResult.error);
-        console.log('🔄 Trying Firebase Storage fallback...');
-        
-        // Fallback to Firebase Storage
-        try {
-          console.log('📤 Uploading to Firebase Storage...');
-          const response = await fetch(imageUri);
-          const blob = await response.blob();
-          
-          const imageRef = storageRef(storage, `profile-images/${uid}`);
-          await uploadBytes(imageRef, blob);
-          
-          const downloadURL = await getDownloadURL(imageRef);
-          console.log('✅ Firebase Storage upload successful:', downloadURL);
-          
-          // Save to Firebase Realtime Database
-          await this.saveUserToRealtimeDB(uid, {
-            profileImageUrl: downloadURL
-          });
-          
-          return { success: true, url: downloadURL };
-        } catch (firebaseError) {
-          console.error('❌ Firebase Storage fallback also failed:', firebaseError);
-          return { 
-            success: false, 
-            error: `Both Cloudinary and Firebase Storage failed. Cloudinary error: ${uploadResult.error}. Firebase error: ${firebaseError.message}` 
-          };
-        }
+        // For remote URLs
+        const response = await fetch(imageUri);
+        blob = await response.blob();
       }
+      
+      const imageRef = storageRef(storage, `profileImages/${uid}`);
+      await uploadBytes(imageRef, blob);
+      
+      const downloadURL = await getDownloadURL(imageRef);
+      console.log('✅ Firebase Storage upload successful:', downloadURL);
+      
+      // Save to Firebase Realtime Database
+      await this.saveUserToRealtimeDB(uid, {
+        profileImageUrl: downloadURL
+      });
+      
+      return { success: true, url: downloadURL };
     } catch (error: any) {
-      console.error('Error uploading image:', error);
+      console.error('❌ Firebase Storage upload failed:', error);
       return { 
         success: false, 
         error: {
-          code: error.code,
-          message: this.getErrorMessage(error.code)
+          code: 'upload-failed',
+          message: `Firebase Storage upload failed: ${error.message}`
         }
       };
     }
   }
 
-  // Delete profile image from Cloudinary and Firebase
+  // Delete profile image from Firebase Storage
   async deleteProfileImage(uid: string): Promise<{ success: boolean; error?: AuthError }> {
     try {
       const userData = await this.getUserData(uid);
       
-      if (userData?.cloudinaryPublicId) {
-        // Delete from Cloudinary
-        const deleteResult = await cloudinaryService.deleteImage(userData.cloudinaryPublicId);
-        
-        if (deleteResult.success) {
-          // Remove from Firebase Realtime Database
-          await this.saveUserToRealtimeDB(uid, {
-            profileImageUrl: undefined,
-            cloudinaryPublicId: undefined
-          });
-          
-          return { success: true };
-        } else {
-          return { 
-            success: false, 
-            error: {
-              code: 'delete-failed',
-              message: deleteResult.error || 'Delete failed'
-            }
-          };
+      if (userData?.profileImageUrl) {
+        // Delete from Firebase Storage
+        try {
+          const imageRef = storageRef(storage, `profileImages/${uid}`);
+          await deleteObject(imageRef);
+          console.log('✅ Deleted from Firebase Storage');
+        } catch (firebaseError) {
+          console.warn('Failed to delete from Firebase Storage:', firebaseError);
         }
       }
+      
+      // Remove from Firebase Realtime Database
+      await this.saveUserToRealtimeDB(uid, {
+        profileImageUrl: undefined
+      });
       
       return { success: true };
     } catch (error: any) {
@@ -505,8 +483,8 @@ class AuthService {
       return { 
         success: false, 
         error: {
-          code: error.code,
-          message: this.getErrorMessage(error.code)
+          code: 'delete-failed',
+          message: `Failed to delete profile image: ${error.message}`
         }
       };
     }
@@ -806,7 +784,8 @@ class AuthService {
       
       // Sign in with Google
       console.log('Starting Google Sign-In...');
-      const { idToken } = await GoogleSignin.signIn();
+      const signInResult = await GoogleSignin.signIn();
+      const idToken = signInResult.data?.idToken;
       console.log('✅ Google Sign-In successful, got ID token');
       
       // Create Google credential
@@ -1001,25 +980,15 @@ class AuthService {
         console.log('⚠️ Error deleting from Firestore:', error);
       }
 
-      // Step 5: Delete profile images
-      if (userData?.cloudinaryPublicId) {
-        try {
-          console.log('🗑️ Deleting profile image from Cloudinary...');
-          await cloudinaryService.deleteImage(userData.cloudinaryPublicId);
-          console.log('✅ Profile image deleted from Cloudinary');
-        } catch (error) {
-          console.log('⚠️ Error deleting profile image from Cloudinary:', error);
-        }
-      }
-
-      if (userData?.profileImageUrl && userData.profileImageUrl.includes('firebasestorage')) {
+      // Step 5: Delete profile images from Firebase Storage
+      if (userData?.profileImageUrl) {
         try {
           console.log('🗑️ Deleting profile image from Firebase Storage...');
-          const imageRef = storageRef(storage, `profile-images/${user.uid}`);
+          const imageRef = storageRef(storage, `profileImages/${user.uid}`);
           await deleteObject(imageRef);
           console.log('✅ Profile image deleted from Firebase Storage');
         } catch (error) {
-          console.log('⚠️ Error deleting profile image from Storage:', error);
+          console.log('⚠️ Error deleting profile image from Firebase Storage:', error);
         }
       }
 

@@ -1,4 +1,4 @@
-package com.anonymous.mygpsapp
+package com.slimiot.gpstracker
 
 import android.os.Build
 import android.os.Bundle
