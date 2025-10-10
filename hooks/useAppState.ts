@@ -48,7 +48,13 @@ export const useAppState = () => {
       
       if (storedUserData) {
         console.log('Found existing session, user:', storedUserData.email);
-        setUserData(storedUserData);
+        
+        // Load fresh user data from database to get latest profile image
+        const freshUserData = await authService.getUserData(storedUserData.uid);
+        const userDataToUse = freshUserData || storedUserData;
+        
+        console.log('Using fresh user data from database:', userDataToUse.profileImageUrl);
+        setUserData(userDataToUse);
         setIsAuthenticated(true);
         
         // Reset all screen states to ensure clean dashboard view
@@ -56,9 +62,9 @@ export const useAppState = () => {
         setShowAddDevice(false);
         setShowThemeManagement(false);
         
-        // Set profile image if available
-        if (storedUserData.profileImageUrl) {
-          setProfileImage(storedUserData.profileImageUrl);
+        // Set profile image if available (use fresh data)
+        if (userDataToUse.profileImageUrl) {
+          setProfileImage(userDataToUse.profileImageUrl);
         }
         
         // Reset drawer to ensure it's closed

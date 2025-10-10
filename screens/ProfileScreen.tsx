@@ -34,7 +34,6 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
   const [profileImage, setProfileImage] = useState<string | null>(userData.profileImageUrl || null);
   const [editedData, setEditedData] = useState({
     fullName: userData.fullName,
-    email: userData.email,
     phoneNumber: userData.phoneNumber,
   });
   
@@ -157,6 +156,16 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
   const uploadProfileImage = async (imageUri: string) => {
     setIsLoading(true);
     try {
+      console.log('ProfileScreen - userData:', userData);
+      console.log('ProfileScreen - userData.uid:', userData.uid);
+      console.log('ProfileScreen - userData.uid type:', typeof userData.uid);
+      
+      if (!userData.uid) {
+        Alert.alert('Error', 'User ID not found. Please try logging in again.');
+        setIsLoading(false);
+        return;
+      }
+      
       const result = await authService.uploadProfileImage(userData.uid, imageUri);
       if (result.success && result.url) {
         setProfileImage(result.url);
@@ -179,19 +188,17 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // Update user data in database
+      // Update user data in database (email is not editable)
       const result = await authService.updateUserProfile(userData.uid, {
         fullName: editedData.fullName,
-        email: editedData.email,
         phoneNumber: editedData.phoneNumber,
       });
 
       if (result.success) {
-        // Update local user data
+        // Update local user data (keep original email)
         const updatedUserData = {
           ...userData,
           fullName: editedData.fullName,
-          email: editedData.email,
           phoneNumber: editedData.phoneNumber,
         };
         
@@ -214,8 +221,8 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
     const authProvider = authService.getUserAuthProvider();
     
     if (authProvider === 'google') {
-      // Show error message for Google users
-      showErrorMessage('You need to change your password from your Google account settings.');
+      // Show info message for Google users
+      showGooglePasswordMessage();
     } else if (authProvider === 'password') {
       // Show password change modal for email/password users
       setShowPasswordModal(true);
@@ -223,6 +230,17 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
       // Fallback for unknown providers
       showErrorMessage('Password change is not available for your account type.');
     }
+  };
+
+  const showGooglePasswordMessage = () => {
+    setErrorMessage('Change password from your Google account settings');
+    setShowError(true);
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+      setShowError(false);
+      setErrorMessage('');
+    }, 3000);
   };
 
   const handlePasswordChange = async () => {
@@ -279,9 +297,14 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       
-      {/* Error Message Banner */}
+      {/* Info/Error Message Banner */}
       {showError && (
-        <View style={[styles.errorBanner, { backgroundColor: colors.error }]}>
+        <View style={[
+          styles.errorBanner, 
+          { 
+            backgroundColor: '#FF0000' // Hardcoded red color
+          }
+        ]}>
           <Text style={styles.errorBannerText}>{errorMessage}</Text>
         </View>
       )}
@@ -329,7 +352,7 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
                   color: colors.textSecondary
                 }
               ]}
-              value={userData.loginId}
+              value={userData.loginId || userData.email?.split('@')[0] || ''}
               editable={false}
               placeholderTextColor={colors.textSecondary}
             />
@@ -359,16 +382,15 @@ export default function ProfileScreen({ userData, onBack, onUpdateProfile }: Pro
             <TextInput
               style={[
                 styles.fieldInput, 
-                !isEditing && styles.readOnlyField,
+                styles.readOnlyField,
                 { 
-                  backgroundColor: isEditing ? colors.input : colors.input,
+                  backgroundColor: colors.input,
                   borderColor: colors.border,
-                  color: colors.text
+                  color: colors.textSecondary
                 }
               ]}
-              value={editedData.email}
-              onChangeText={(text) => setEditedData(prev => ({ ...prev, email: text }))}
-              editable={isEditing}
+              value={userData.email}
+              editable={false}
               keyboardType="email-address"
               autoCapitalize="none"
               placeholderTextColor={colors.textSecondary}

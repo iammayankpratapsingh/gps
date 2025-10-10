@@ -175,10 +175,23 @@ class AuthService {
       let userData = await this.getUserDataFromRealtimeDB(user.uid);
       
       if (userData) {
-        // Update last login time and profile image if changed
+        // Update last login time only
         userData.lastLoginAt = new Date();
-        userData.profileImageUrl = googleUser?.photo || user.photoURL || userData.profileImageUrl;
-        console.log('Found existing user data for Google login, preserving phone number');
+        
+        // Preserve custom profile images - never overwrite with Google image
+        // Only use Google image if user has no profile image or if it's the same as Google image
+        const googleImageUrl = googleUser?.photo || user.photoURL;
+        const hasCustomImage = userData.profileImageUrl && 
+                              userData.profileImageUrl !== googleImageUrl &&
+                              !userData.profileImageUrl.includes('googleusercontent.com');
+        
+        if (!hasCustomImage) {
+          // Only update if user has no image or if current image is the Google image
+          userData.profileImageUrl = googleImageUrl || userData.profileImageUrl;
+        }
+        // If hasCustomImage is true, keep the existing profileImageUrl unchanged
+        
+        console.log('Found existing user data for Google login, preserving custom profile image');
       } else {
         // Create new user data if not found in database
         const email = user.email || googleUser?.email || '';
@@ -404,6 +417,31 @@ class AuthService {
   async uploadProfileImage(uid: string, imageUri: string): Promise<{ success: boolean; url?: string; error?: AuthError }> {
     try {
       console.log('Starting image upload for user:', uid);
+      console.log('UID type:', typeof uid, 'UID value:', uid);
+      
+      // Validate UID
+      if (!uid || uid === 'undefined' || uid === 'null' || uid === undefined || uid === null) {
+        console.error('Invalid UID provided:', uid);
+        return {
+          success: false,
+          error: {
+            code: 'invalid-uid',
+            message: 'Invalid user ID provided for image upload'
+          }
+        };
+      }
+      
+      // Additional check for string 'undefined'
+      if (typeof uid === 'string' && uid.toLowerCase() === 'undefined') {
+        console.error('UID is string "undefined":', uid);
+        return {
+          success: false,
+          error: {
+            code: 'invalid-uid',
+            message: 'User ID is undefined. Please try logging in again.'
+          }
+        };
+      }
       
       // First, delete existing profile image if any
       const userData = await this.getUserData(uid);
@@ -438,10 +476,18 @@ class AuthService {
       const downloadURL = await getDownloadURL(imageRef);
       console.log('✅ Firebase Storage upload successful:', downloadURL);
       
-      // Save to Firebase Realtime Database
-      await this.saveUserToRealtimeDB(uid, {
-        profileImageUrl: downloadURL
-      });
+      // Get existing user data and update profile image URL
+      const existingUserData = await this.getUserDataFromRealtimeDB(uid);
+      if (existingUserData) {
+        // Update existing user data with new profile image URL
+        existingUserData.profileImageUrl = downloadURL;
+        await this.saveUserToRealtimeDB(uid, existingUserData);
+      } else {
+        // Fallback: update just the profile image URL
+        await this.saveUserToRealtimeDB(uid, {
+          profileImageUrl: downloadURL
+        });
+      }
       
       return { success: true, url: downloadURL };
     } catch (error: any) {
@@ -473,9 +519,17 @@ class AuthService {
       }
       
       // Remove from Firebase Realtime Database
-      await this.saveUserToRealtimeDB(uid, {
-        profileImageUrl: undefined
-      });
+      const existingUserData = await this.getUserDataFromRealtimeDB(uid);
+      if (existingUserData) {
+        // Update existing user data to remove profile image URL
+        existingUserData.profileImageUrl = undefined;
+        await this.saveUserToRealtimeDB(uid, existingUserData);
+      } else {
+        // Fallback: update just the profile image URL
+        await this.saveUserToRealtimeDB(uid, {
+          profileImageUrl: undefined
+        });
+      }
       
       return { success: true };
     } catch (error: any) {
@@ -496,6 +550,7 @@ class AuthService {
       const userRef = ref(realtimeDb, `users/${uid}`);
       await update(userRef, {
         ...userData,
+        uid: uid, // Ensure UID is always included
         updatedAt: new Date().toISOString()
       });
     } catch (error) {
@@ -510,7 +565,16 @@ class AuthService {
       const snapshot = await get(userRef);
       
       if (snapshot.exists()) {
-        return snapshot.val() as UserData;
+        const data = snapshot.val();
+        
+        // Fix missing UID field for existing users
+        if (!data.uid) {
+          console.log('Fixing missing UID field for user:', uid);
+          data.uid = uid;
+          await this.saveUserToRealtimeDB(uid, data);
+        }
+        
+        return data as UserData;
       }
       return null;
     } catch (error) {

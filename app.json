@@ -15,6 +15,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0097b2"
       },
+      "splash": {
+        "backgroundColor": "#0097b2"
+      },
       "edgeToEdgeEnabled": true,
       "package": "com.slimiot.gpstracker",
       "googleServicesFile": "./android/app/google-services.json",
