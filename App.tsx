@@ -241,6 +241,9 @@ export default function App() {
     toggleDrawer,
     closeDrawer,
     resetDrawer,
+    forceCloseDrawer,
+    validateDrawerState,
+    cleanup: cleanupDrawer,
   } = useDrawer();
 
   // Set drawer reset callback
@@ -248,17 +251,37 @@ export default function App() {
     setDrawerResetCallback(() => resetDrawer);
   }, [resetDrawer, setDrawerResetCallback]);
 
-  // Reset drawer only when user first becomes authenticated
-  const [hasResetDrawerOnAuth, setHasResetDrawerOnAuth] = useState(false);
+  // Consolidated drawer reset logic - only reset when authentication state changes
+  const [lastAuthState, setLastAuthState] = useState<boolean | null>(null);
   useEffect(() => {
-    if (isAuthenticated && !hasResetDrawerOnAuth) {
-      console.log('User authenticated - resetting drawer to show dashboard');
+    // Only reset drawer when authentication state actually changes
+    if (lastAuthState !== null && lastAuthState !== isAuthenticated) {
+      console.log('🔄 Authentication state changed, resetting drawer:', {
+        from: lastAuthState,
+        to: isAuthenticated
+      });
       resetDrawer();
-      setHasResetDrawerOnAuth(true);
-    } else if (!isAuthenticated) {
-      setHasResetDrawerOnAuth(false);
     }
-  }, [isAuthenticated, hasResetDrawerOnAuth, resetDrawer]);
+    setLastAuthState(isAuthenticated);
+  }, [isAuthenticated, lastAuthState, resetDrawer]);
+
+  // Cleanup drawer on unmount
+  useEffect(() => {
+    return () => {
+      cleanupDrawer();
+    };
+  }, [cleanupDrawer]);
+
+  // Validate drawer state periodically to prevent flicker
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (isAuthenticated) {
+        validateDrawerState();
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(interval);
+  }, [isAuthenticated, validateDrawerState]);
 
   // Load added devices when app starts
   useEffect(() => {

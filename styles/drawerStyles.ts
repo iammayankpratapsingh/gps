@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3, // Enhanced shadow
     shadowRadius: 8, // Enhanced shadow
     elevation: 8, // Enhanced shadow for Android
-    zIndex: 999, // Below screen overlays (1000-1001) to prevent flicker
+    zIndex: 900, // Below screen overlays (1000-1001) to prevent flicker
     borderRightWidth: 0, // Remove border for cleaner look
     overflow: 'hidden', // Ensure border radius is properly applied
   },
@@ -161,6 +161,6 @@ export const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 998, // Below drawer but above main content
+    zIndex: 899, // Below drawer but above main content
   },
 });

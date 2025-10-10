@@ -91,26 +91,28 @@ export const AppDrawer: React.FC<AppDrawerProps> = ({
       </Animated.View>
 
       {/* Overlay */}
-      <Animated.View
-        style={[
-          styles.overlay,
-          {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            opacity: drawerAnimation.interpolate({
-              inputRange: [-width * 0.8, 0],
-              outputRange: [0, 1],
-              extrapolate: 'clamp',
-            }),
-          },
-        ]}
-        pointerEvents={isDrawerOpen ? 'auto' : 'none'}
-      >
-        <TouchableOpacity 
-          style={StyleSheet.absoluteFillObject}
-          onPress={onToggleDrawer}
-          activeOpacity={1}
-        />
-      </Animated.View>
+      {isDrawerOpen && (
+        <Animated.View
+          style={[
+            styles.overlay,
+            {
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              opacity: drawerAnimation.interpolate({
+                inputRange: [-width * 0.8, 0],
+                outputRange: [0, 1],
+                extrapolate: 'clamp',
+              }),
+            },
+          ]}
+          pointerEvents={isDrawerOpen ? 'auto' : 'none'}
+        >
+          <TouchableOpacity 
+            style={StyleSheet.absoluteFillObject}
+            onPress={onToggleDrawer}
+            activeOpacity={1}
+          />
+        </Animated.View>
+      )}
     </>
   );
 };

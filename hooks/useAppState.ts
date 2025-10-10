@@ -67,10 +67,8 @@ export const useAppState = () => {
           setProfileImage(userDataToUse.profileImageUrl);
         }
         
-        // Reset drawer to ensure it's closed
-        if (drawerResetCallback) {
-          drawerResetCallback();
-        }
+        // Note: Drawer reset is now handled centrally in App.tsx
+        // No need to reset here to prevent conflicts
         
         // Initialize devices for authenticated user
         console.log('Initializing devices for authenticated user...');
@@ -168,6 +166,12 @@ export const useAppState = () => {
   const handleLogout = async () => {
     try {
       console.log('Starting logout process...');
+      
+      // Force close drawer immediately to prevent flicker during logout
+      if (drawerResetCallback) {
+        drawerResetCallback();
+      }
+      
       await authService.signOutUser();
       console.log('Auth service signOut completed');
       
@@ -213,10 +217,8 @@ export const useAppState = () => {
       setShowAddDevice(false);
       setShowThemeManagement(false);
       
-      // Reset drawer to ensure it's closed
-      if (drawerResetCallback) {
-        drawerResetCallback();
-      }
+      // Note: Drawer reset is now handled centrally in App.tsx
+      // No need to reset here to prevent conflicts
       
       // Update device service with new user
       deviceService.updateCurrentUser(user.uid);
